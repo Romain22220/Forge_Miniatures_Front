@@ -1,9 +1,10 @@
-<template>
-  <Navbar />
-  <router-view />
-</template>
-
 <script setup lang="ts">
-import Navbar from './components/Navbar.vue'
+import AppNavBar from '@/components/common/AppNavBar.vue'  // Avec B majuscule
 </script>
 
+<template>
+  <div>
+    <AppNavBar />
+    <router-view />
+  </div>
+</template>
