@@ -6,9 +6,8 @@
       <!-- Logo premium avec gradient -->
       <router-link to="/" class="navbar-logo">
         <div class="logo-container">
-          <div class="logo-icon">🏎️</div>
           <span class="logo-text">
-            <span class="logo-forge">Forge</span>
+            <span class="logo-forge">Fabrik'</span>
             <span class="logo-miniatures">Miniatures</span>
           </span>
         </div>
@@ -68,10 +67,10 @@
                 </div>
               </a>
               <a href="#" class="dropdown-item">
-                <span class="dropdown-emoji">📦</span>
+                <span class="dropdown-emoji">✨</span>
                 <div>
-                  <div class="dropdown-title">Collection</div>
-                  <div class="dropdown-desc">Ma collection</div>
+                  <div class="dropdown-title">Nouveautés</div>
+                  <div class="dropdown-desc">Les dernières nouveautés</div>
                 </div>
               </a>
             </div>
@@ -111,17 +110,6 @@
           <UserIcon class="btn-icon" />
           <span>Connexion</span>
         </router-link>
-
-        <!-- Menu mobile burger -->
-        <button 
-          @click="toggleMobileMenu" 
-          class="mobile-menu-button"
-          :class="{ 'active': isMobileMenuOpen }"
-        >
-          <div class="hamburger-line"></div>
-          <div class="hamburger-line"></div>
-          <div class="hamburger-line"></div>
-        </button>
       </div>
     </div>
 
@@ -164,13 +152,6 @@
                 <div class="mobile-nav-title">Contact</div>
                 <div class="mobile-nav-desc">Nous contacter</div>
               </div>
-            </router-link>
-          </div>
-
-          <!-- Actions mobile -->
-          <div class="mobile-menu-actions">
-            <router-link to="/connexion" class="mobile-btn-premium" @click="closeMobileMenu">
-              🔐 Se connecter
             </router-link>
           </div>
         </div>
@@ -227,10 +208,6 @@ const handleSearch = () => {
   if (searchQuery.value.trim()) {
     console.log('Recherche:', searchQuery.value)
   }
-}
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
 const closeMobileMenu = () => {
@@ -341,7 +318,7 @@ onUnmounted(() => {
 }
 
 .dropdown-menu {
-  @apply absolute top-full left-0 mt-2 w-64 bg-gray-900 rounded-xl shadow-2xl border border-gray-700;
+  @apply absolute top-full left-0 mt-2 w-64 bg-gray-900 rounded-2xl shadow-2xl border border-gray-700;
   @apply py-2;
 }
 
@@ -400,16 +377,18 @@ onUnmounted(() => {
 
 /* Panier */
 .cart-button {
-  @apply relative p-2 text-gray-300 hover:text-white transition-colors;
-  @apply bg-gray-800/50 rounded-lg hover:bg-gray-700;
+  @apply relative p-3 text-gray-300 hover:text-white transition-colors;
+  @apply bg-gray-800/50 rounded-lg hover:bg-gray-700 border border-gray-700;
 }
 
 .cart-icon {
   @apply w-6 h-6;
+  stroke: currentColor;
+  fill: none;
 }
 
 .cart-badge {
-  @apply absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs;
+  @apply absolute -bottom-1 -right-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs;
   @apply rounded-full w-5 h-5 flex items-center justify-center font-bold;
 }
 
@@ -425,7 +404,7 @@ onUnmounted(() => {
   @apply w-5 h-5;
 }
 
-/* Menu mobile */
+/* Menu mobile burger - masqué sur desktop */
 .mobile-menu-button {
   @apply lg:hidden p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 transition-all;
   @apply flex flex-col justify-center items-center w-10 h-10 space-y-1;
