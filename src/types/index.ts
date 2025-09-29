@@ -31,6 +31,17 @@ export interface Reference {
   year?: number
 }
 
+export interface User {
+  id: number
+  nom_user: string
+  prenom_user: string
+  pseudo: string
+  email: string
+  telephone?: string
+  adresse?: string
+  isAdmin: boolean
+}
+
 export interface ApiResponse<T> {
   data: T
   message?: string
