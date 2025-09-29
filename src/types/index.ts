@@ -1,34 +1,22 @@
 export interface Article {
-  id: number
-  name: string
-  marque: string
-  description: string
-  images: string[]
-  price: number
-  quantite: number
-  dateCreation: string
-  datePublication: string
-  typeId: number
-  typeName: string
-  statusId: number
-  statutName: string
-  scaleId: number
-  scaleName: string
-  referenceId: number
-  referenceName: string
+  idt_article: number
+  nom_article: string
+  marque_article: string
+  description_article: string
+  prix_article: number
+  quantite_article: number
+  dateCreation: Date
+  datePublication: Date
 }
 
 export interface Scale {
-  id: number
-  name: string
-  ratio: string
+  idt_scale: number
+  scale: string
 }
 
 export interface Reference {
-  id: number
-  brand: string
-  model: string
-  year?: number
+  idt_reference: number
+  nom_reference: string
 }
 
 export interface User {
