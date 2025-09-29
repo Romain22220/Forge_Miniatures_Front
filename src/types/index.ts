@@ -35,6 +35,11 @@ export interface Status_Article {
   status: string
 }
 
+export interface Articles_Images {
+  idt_articles_images: number
+  url_image: string
+}
+
 export interface ApiResponse<T> {
   data: T
   message?: string
