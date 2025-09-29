@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ContactView from "../views/ContactView.vue"
 import ConnexionView from '../views/ConnexionView.vue'
+import InscriptionView from '@/views/InscriptionView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -19,7 +20,12 @@ const routes: Array<RouteRecordRaw> = [
      path: '/connexion',
      name: 'Connexion',
      component: ConnexionView
-   }
+   },
+  {
+    path: '/inscription',
+    name: 'Inscription',
+    component: InscriptionView
+  }
 ]
 
 const router = createRouter({
