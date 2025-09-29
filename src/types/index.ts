@@ -30,6 +30,11 @@ export interface User {
   isAdmin: boolean
 }
 
+export interface Status_Article {
+  idt_status_article: number
+  status: string
+}
+
 export interface ApiResponse<T> {
   data: T
   message?: string
