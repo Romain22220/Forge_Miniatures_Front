@@ -40,6 +40,16 @@ export interface Articles_Images {
   url_image: string
 }
 
+export interface Type {
+  idt_type: number
+  nom: string
+}
+
+export interface SubType {
+  idt_subtype: number
+  nom_subtype: string
+}
+
 export interface ApiResponse<T> {
   data: T
   message?: string
