@@ -50,6 +50,16 @@ export interface SubType {
   nom_subtype: string
 }
 
+export interface shop {
+  idt_panier: number
+}
+
+export interface Contain {
+  idt_panier: number
+  idt_article: number
+  quantite: number
+}
+
 export interface ApiResponse<T> {
   data: T
   message?: string
