@@ -1,3 +1,4 @@
+
 <template>
   <div :class="$style.navbar28">
     <div :class="$style.header">
@@ -27,10 +28,13 @@
           </div>
         </div>
         <div :class="$style.actions">
-          <div :class="$style.button">
-            <!-- Redirect to LoginView -->
-            <router-link to="/connexion" :class="$style.linkText"> Connexion </router-link>
+          <div v-if="!user" :class="$style.button">
+            <router-link to="/connexion" :class="$style.linkText">Connexion</router-link>
           </div>
+          <div v-else :class="$style.button" @click="handleLogout" style="cursor: pointer;">
+            <span :class="$style.linkText">Déconnexion</span>
+          </div>
+
           <div :class="$style.button2">
             <div :class="$style.linkText">Panier</div>
           </div>
@@ -91,6 +95,15 @@
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { useAuth } from '@/services/api'
+
+const { user, logout } = useAuth()
+
+const handleLogout = async () => {
+  await logout()
+}
+</script>
 <style module>
 .navbar28 {
   width: 100%;

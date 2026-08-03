@@ -58,6 +58,39 @@ export interface ApiResponse<T = unknown> {
 }
 
 // ============================================
+// ÉTAT D'AUTHENTIFICATION PARTAGÉ
+// ============================================
+// Déclaré au niveau du module (et non dans useAuth()) pour que TOUS les
+// composants qui appellent useAuth() (Navbar, LoginView, etc.) partagent
+// exactement les mêmes refs réactives.
+
+import { ref } from 'vue'
+
+const isLoading = ref(false)
+const error = ref('')
+const success = ref('')
+const validationErrors = ref<Record<string, string> | null>(null)
+const user = ref<User | null>(null)
+
+// Restaure la session au chargement du module (ex: après un F5)
+const storedUser = localStorage.getItem('auth_user')
+if (storedUser) {
+  try {
+    user.value = JSON.parse(storedUser)
+  } catch {
+    localStorage.removeItem('auth_user')
+  }
+}
+
+// Permet à apiService.request() de vider le user si le token est rejeté (401)
+function clearSession() {
+  user.value = null
+  localStorage.removeItem('auth_token')
+  localStorage.removeItem('auth_user')
+  localStorage.removeItem('remember_me')
+}
+
+// ============================================
 // SERVICE API
 // ============================================
 
@@ -84,7 +117,9 @@ class ApiService {
 
     if (!response.ok) {
       if (response.status === 401) {
-        localStorage.removeItem('auth_token')
+        // Token invalide/expiré : on nettoie tout, y compris le user affiché
+        // dans la Navbar, pour resynchroniser l'UI avec la réalité du back.
+        clearSession()
       }
 
       const text = await response.text()
@@ -92,11 +127,11 @@ class ApiService {
         ? JSON.parse(text)
         : { message: response.statusText, status: response.status }
 
-      const error = new Error(parsed.message) as Error & {
+      const err = new Error(parsed.message) as Error & {
         validationErrors?: Record<string, string>
       }
-      error.validationErrors = parsed.errors
-      throw error
+      err.validationErrors = parsed.errors
+      throw err
     }
 
     // Certaines réponses peuvent être vides (ex: DELETE)
@@ -189,8 +224,7 @@ class ApiService {
   // on nettoie juste le localStorage.
   // ------------------------------------------
   async logoutUser(): Promise<void> {
-    localStorage.removeItem('auth_token')
-    localStorage.removeItem('remember_me')
+    clearSession()
   }
 
   // ------------------------------------------
@@ -252,19 +286,13 @@ class ApiService {
 export const apiService = new ApiService()
 
 // ============================================
-// COMPOSABLE VUE 3
+// COMPOSABLE VUE 3 (état PARTAGÉ, voir plus haut)
 // ============================================
 
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 export function useAuth() {
   const router = useRouter()
-  const isLoading = ref(false)
-  const error = ref('')
-  const success = ref('')
-  const validationErrors = ref<Record<string, string> | null>(null)
-  const user = ref<User | null>(null)
 
   const register = async (userData: UserRegistrationData) => {
     isLoading.value = true
@@ -276,9 +304,6 @@ export function useAuth() {
 
     if (result.success) {
       success.value = result.message || 'Inscription réussie !'
-      if (result.data) {
-        user.value = result.data
-      }
       setTimeout(() => {
         router.push('/connexion?registered=true')
       }, 2000)
@@ -300,6 +325,7 @@ export function useAuth() {
     if (result.success) {
       try {
         user.value = await apiService.getUserByEmail(email)
+        localStorage.setItem('auth_user', JSON.stringify(user.value))
       } catch (e) {
         console.warn('Impossible de récupérer les infos user après login:', e)
       }
@@ -314,7 +340,6 @@ export function useAuth() {
 
   const logout = async () => {
     await apiService.logoutUser()
-    user.value = null
     router.push('/connexion')
   }
 
