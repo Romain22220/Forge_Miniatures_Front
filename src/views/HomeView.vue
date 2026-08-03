@@ -159,14 +159,17 @@
 
 .collectionCardBestSellers {
   background-image: url('../assets/images/Ogier.png');
+  opacity: 0.9;
 }
 
 .collectionCardNew {
   background-image: url('../assets/images/fa.jpg');
+  opacity: 0.9;
 }
 
 .collectionCardPreorders {
   background-image: url('../assets/images/solberg.jpg');
+  opacity: 0.9;
 }
 
 .collectionCard:hover {
