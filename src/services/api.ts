@@ -1,13 +1,13 @@
 import type { Article, Scale, Reference } from '@/types'
 
-const API_BASE_URL = 'http://localhost:8085/api' // Port aligné sur la spec Swagger
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
 // ============================================
 // TYPES - AUTHENTIFICATION / USER
 // ============================================
 
 export interface UserRegistrationData {
-  name: string           // correspond à "name" dans UserDTO (prénom côté back)
+  name: string // correspond à "name" dans UserDTO (prénom côté back)
   lastName: string
   pseudo: string
   email: string
@@ -66,7 +66,11 @@ class ApiService {
     const token = localStorage.getItem('auth_token')
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...(typeof options?.headers === 'object' && options?.headers ? Object.fromEntries(Object.entries(options.headers).filter(([, v]) => typeof v === 'string')) : {}),
+      ...(typeof options?.headers === 'object' && options?.headers
+        ? Object.fromEntries(
+            Object.entries(options.headers).filter(([, v]) => typeof v === 'string'),
+          )
+        : {}),
     }
 
     if (token) {
