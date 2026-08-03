@@ -2,8 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import ContactView from "../views/ContactView.vue"
-import ConnexionView from '../views/ConnexionView.vue'
-import InscriptionView from '@/views/InscriptionView.vue'
+import ConnexionView from '../views/LoginView.vue'
+import InscriptionView from '../views/RegisterView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {

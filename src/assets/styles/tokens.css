@@ -1,0 +1,16 @@
+:root {
+  --color-bg: #000;
+  --color-text: #fff;
+  --color-accent: #d9a65b;
+  --color-error-bg: #2a1414;
+  --color-error-text: #f5b5b5;
+  --color-border: #fff;
+
+  --radius-md: 8px;
+  --font-family: 'Roboto', sans-serif;
+
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+}

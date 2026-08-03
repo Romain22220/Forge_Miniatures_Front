@@ -1,24 +1,54 @@
 import type { Article, Scale, Reference } from '@/types'
 
-const API_BASE_URL = 'http://localhost:8080/api' // Votre API Spring Boot
+const API_BASE_URL = 'http://localhost:8085/api' // Port aligné sur la spec Swagger
 
-// Types pour l'authentification
+// ============================================
+// TYPES - AUTHENTIFICATION / USER
+// ============================================
+
 export interface UserRegistrationData {
-  firstName: string
+  name: string           // correspond à "name" dans UserDTO (prénom côté back)
   lastName: string
+  pseudo: string
   email: string
+  address: string
   password: string
-  birthDate?: string | null
-  acceptNewsletter?: boolean
+  phoneNumber?: string
+  birthday?: string | null // format "date" (YYYY-MM-DD)
 }
 
 export interface UserLoginData {
   email: string
   password: string
-  rememberMe?: boolean
+  rememberMe?: boolean // absent du LoginRequestDTO, géré uniquement côté front
 }
 
-export interface ApiResponse<T = any> {
+// Reflète UserDTO tel que défini dans la spec
+export interface User {
+  id: number
+  name: string
+  lastName: string
+  pseudo: string
+  email: string
+  phoneNumber?: string
+  address: string
+  birthday?: string
+  admin?: boolean
+}
+
+// Réponse réelle du back pour /api/auth/login
+export interface LoginResponse {
+  token: string
+}
+
+// Reflète ErrorResponseDTO côté Spring Boot
+export interface ErrorResponseDTO {
+  message: string
+  status: number
+  errors?: Record<string, string>
+}
+
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   message?: string
@@ -27,32 +57,18 @@ export interface ApiResponse<T = any> {
   validationErrors?: Record<string, string>
 }
 
-export interface User {
-  id: number
-  email: string
-  firstName: string
-  lastName: string
-  birthDate?: string
-  acceptNewsletter: boolean
-  createdAt: string
-  updatedAt: string
-}
-
-export interface AuthResponse {
-  token: string
-  user: User
-  expiresIn: number
-}
+// ============================================
+// SERVICE API
+// ============================================
 
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    // Ajouter le token d'authentification si disponible
     const token = localStorage.getItem('auth_token')
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(typeof options?.headers === 'object' && options?.headers ? Object.fromEntries(Object.entries(options.headers).filter(([, v]) => typeof v === 'string')) : {}),
     }
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`
     }
@@ -61,180 +77,137 @@ class ApiService {
       headers,
       ...options,
     })
-    
+
     if (!response.ok) {
-      // Gestion spécifique des erreurs d'authentification
       if (response.status === 401) {
         localStorage.removeItem('auth_token')
-        window.location.href = '/connexion'
       }
-      
-      // Essayer de parser l'erreur JSON si possible
-      try {
-        const errorData = await response.json()
-        throw new Error(errorData.message || `API Error: ${response.statusText}`)
-      } catch {
-        throw new Error(`API Error: ${response.statusText}`)
+
+      const text = await response.text()
+      const parsed: ErrorResponseDTO = text
+        ? JSON.parse(text)
+        : { message: response.statusText, status: response.status }
+
+      const error = new Error(parsed.message) as Error & {
+        validationErrors?: Record<string, string>
       }
+      error.validationErrors = parsed.errors
+      throw error
     }
-    
-    return response.json()
+
+    // Certaines réponses peuvent être vides (ex: DELETE)
+    const text = await response.text()
+    return text ? JSON.parse(text) : (undefined as T)
   }
 
-  // ============================================
-  // AUTHENTIFICATION
-  // ============================================
-
-  async registerUser(userData: UserRegistrationData): Promise<ApiResponse<AuthResponse>> {
+  // ------------------------------------------
+  // Inscription -> POST /api/users/create
+  // ------------------------------------------
+  async registerUser(userData: UserRegistrationData): Promise<ApiResponse<User>> {
     try {
-      // Adapter les données selon ce que votre API Spring Boot attend
       const requestData = {
-        firstName: userData.firstName,
+        name: userData.name,
         lastName: userData.lastName,
+        pseudo: userData.pseudo,
         email: userData.email.toLowerCase(),
+        address: userData.address,
         password: userData.password,
-        birthDate: userData.birthDate,
-        acceptNewsletter: userData.acceptNewsletter || false
+        phoneNumber: userData.phoneNumber,
+        birthday: userData.birthday,
       }
 
-      const result = await this.request<AuthResponse>('/users/create', {
+      const result = await this.request<User>('/users/create', {
         method: 'POST',
         body: JSON.stringify(requestData),
       })
 
-      // Si votre API retourne directement les données utilisateur
       return {
         success: true,
         data: result,
-        message: 'Inscription réussie ! Bienvenue !'
+        message: 'Inscription réussie ! Bienvenue !',
       }
-      
     } catch (error) {
       console.error('Erreur inscription:', error)
-      
-      // Gestion des erreurs spécifiques selon votre API Spring Boot
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
-      
-      if (errorMessage.includes('already exists') || errorMessage.includes('déjà utilisé')) {
+      const err = error as Error & { validationErrors?: Record<string, string> }
+
+      if (err.validationErrors) {
         return {
           success: false,
-          error: 'Cet email est déjà utilisé',
-          field: 'email'
+          error: 'Certains champs sont invalides',
+          validationErrors: err.validationErrors,
         }
       }
-      
-      if (errorMessage.includes('validation') || errorMessage.includes('invalid')) {
-        return {
-          success: false,
-          error: 'Données de validation incorrectes'
-        }
+
+      if (err.message?.includes('already exists') || err.message?.includes('déjà utilisé')) {
+        return { success: false, error: 'Cet email est déjà utilisé', field: 'email' }
       }
-      
-      return {
-        success: false,
-        error: errorMessage.includes('API Error') 
-          ? 'Erreur serveur. Veuillez réessayer.' 
-          : errorMessage
-      }
+
+      return { success: false, error: err.message || 'Erreur serveur. Veuillez réessayer.' }
     }
   }
 
-  async loginUser(loginData: UserLoginData): Promise<ApiResponse<AuthResponse>> {
+  // ------------------------------------------
+  // Connexion -> POST /api/auth/login
+  // ------------------------------------------
+  async loginUser(loginData: UserLoginData): Promise<ApiResponse<LoginResponse>> {
     try {
-      const result = await this.request<AuthResponse>('/users/login', {
+      const result = await this.request<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({
           email: loginData.email.toLowerCase(),
           password: loginData.password,
-          rememberMe: loginData.rememberMe || false
         }),
       })
 
-      // Stocker le token
-      if (result.token) {
-        localStorage.setItem('auth_token', result.token)
-        if (loginData.rememberMe) {
-          localStorage.setItem('remember_me', 'true')
-        }
+      localStorage.setItem('auth_token', result.token)
+      if (loginData.rememberMe) {
+        localStorage.setItem('remember_me', 'true')
       }
 
       return {
         success: true,
         data: result,
-        message: 'Connexion réussie !'
+        message: 'Connexion réussie !',
       }
-      
     } catch (error) {
       console.error('Erreur connexion:', error)
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
-      
-      if (errorMessage.includes('unauthorized') || errorMessage.includes('invalid credentials')) {
-        return {
-          success: false,
-          error: 'Email ou mot de passe incorrect'
-        }
-      }
-      
+      const err = error as Error
+
       return {
         success: false,
-        error: 'Erreur de connexion. Veuillez réessayer.'
+        error: err.message || 'Erreur de connexion. Veuillez réessayer.',
       }
     }
   }
 
+  // ------------------------------------------
+  // Déconnexion : pas d'endpoint back pour l'instant,
+  // on nettoie juste le localStorage.
+  // ------------------------------------------
   async logoutUser(): Promise<void> {
-    try {
-      // Si votre API a un endpoint de déconnexion
-      await this.request('/users/logout', {
-        method: 'POST'
-      })
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error)
-    } finally {
-      // Nettoyer les données locales dans tous les cas
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('remember_me')
-    }
+    localStorage.removeItem('auth_token')
+    localStorage.removeItem('remember_me')
   }
 
-  async getCurrentUser(): Promise<ApiResponse<User>> {
-    try {
-      const user = await this.request<User>('/users/me')
-      return {
-        success: true,
-        data: user
-      }
-    } catch (error) {
-      return {
-        success: false,
-        error: 'Impossible de récupérer les informations utilisateur'
-      }
-    }
-  }
-
-  // Vérifier si un email est disponible (optionnel)
-  async checkEmailAvailable(email: string): Promise<boolean> {
-    try {
-      const response = await this.request<{ available: boolean }>(`/users/check-email?email=${encodeURIComponent(email)}`)
-      return response.available
-    } catch (error) {
-      console.error('Erreur vérification email:', error)
-      return true // En cas d'erreur, on considère l'email comme disponible
-    }
+  // ------------------------------------------
+  // Récupération user par email -> GET /api/users?email=...
+  // ------------------------------------------
+  async getUserByEmail(email: string): Promise<User> {
+    return this.request<User>(`/users?email=${encodeURIComponent(email)}`)
   }
 
   // ============================================
-  // ARTICLES (vos méthodes existantes)
+  // ARTICLES
   // ============================================
 
   async getAllArticles(): Promise<Article[]> {
     return this.request<Article[]>('/articles/all')
   }
-  
+
   async getArticleById(id: number): Promise<Article> {
     return this.request<Article>(`/articles/${id}`)
   }
-  
+
   async createArticle(article: Partial<Article>): Promise<Article> {
     return this.request<Article>('/articles/create', {
       method: 'POST',
@@ -242,49 +215,40 @@ class ApiService {
     })
   }
 
+  async deleteArticle(id: number): Promise<void> {
+    return this.request<void>(`/articles/${id}`, { method: 'DELETE' })
+  }
+
   // ============================================
-  // SCALES (vos méthodes existantes)
+  // SCALES
   // ============================================
 
   async getAllScales(): Promise<Scale[]> {
     return this.request<Scale[]>('/scales/all')
   }
-  
+
   async getScaleById(id: number): Promise<Scale> {
     return this.request<Scale>(`/scales/${id}`)
   }
 
   // ============================================
-  // REFERENCES (vos méthodes existantes)
+  // REFERENCES
   // ============================================
 
   async getAllReferences(): Promise<Reference[]> {
     return this.request<Reference[]>('/references/all')
   }
-  
+
+  // ⚠️ La spec utilise un query param ?id=, pas un path param /{id}
   async getReferenceById(id: number): Promise<Reference> {
-    return this.request<Reference>(`/references/${id}`)
-  }
-
-  // ============================================
-  // ANCIENNES MÉTHODES USERS (pour compatibilité)
-  // ============================================
-
-  async createUser(userData: { email: string; password: string; name?: string }) {
-    // Rediriger vers la nouvelle méthode
-    return this.registerUser({
-      firstName: userData.name?.split(' ')[0] || '',
-      lastName: userData.name?.split(' ').slice(1).join(' ') || '',
-      email: userData.email,
-      password: userData.password
-    })
+    return this.request<Reference>(`/references/id?id=${id}`)
   }
 }
 
 export const apiService = new ApiService()
 
 // ============================================
-// COMPOSABLE POUR VUE 3 (optionnel)
+// COMPOSABLE VUE 3
 // ============================================
 
 import { ref } from 'vue'
@@ -295,29 +259,30 @@ export function useAuth() {
   const isLoading = ref(false)
   const error = ref('')
   const success = ref('')
+  const validationErrors = ref<Record<string, string> | null>(null)
   const user = ref<User | null>(null)
 
   const register = async (userData: UserRegistrationData) => {
     isLoading.value = true
     error.value = ''
     success.value = ''
+    validationErrors.value = null
 
     const result = await apiService.registerUser(userData)
-    
+
     if (result.success) {
       success.value = result.message || 'Inscription réussie !'
       if (result.data) {
-        user.value = result.data.user
+        user.value = result.data
       }
-      
-      // Redirection après 2 secondes
       setTimeout(() => {
         router.push('/connexion?registered=true')
       }, 2000)
     } else {
-      error.value = result.error || 'Erreur lors de l\'inscription'
+      error.value = result.error || "Erreur lors de l'inscription"
+      validationErrors.value = result.validationErrors || null
     }
-    
+
     isLoading.value = false
     return result
   }
@@ -327,16 +292,18 @@ export function useAuth() {
     error.value = ''
 
     const result = await apiService.loginUser({ email, password, rememberMe })
-    
+
     if (result.success) {
-      if (result.data) {
-        user.value = result.data.user
+      try {
+        user.value = await apiService.getUserByEmail(email)
+      } catch (e) {
+        console.warn('Impossible de récupérer les infos user après login:', e)
       }
       router.push('/')
     } else {
       error.value = result.error || 'Erreur de connexion'
     }
-    
+
     isLoading.value = false
     return result
   }
@@ -351,9 +318,10 @@ export function useAuth() {
     isLoading,
     error,
     success,
+    validationErrors,
     user,
     register,
     login,
-    logout
+    logout,
   }
 }

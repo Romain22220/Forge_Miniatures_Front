@@ -1,9 +1,9 @@
-<!-- src/views/ConnexionViews.vue -->
+<!-- src/views/LoginView.vue -->
 <template>
   <div class="connexion-page">
     <!-- Fond avec pattern subtil -->
     <div class="background-pattern"></div>
-    
+
     <!-- Container principal -->
     <div class="connexion-container">
       <!-- Logo/Titre -->
@@ -52,13 +52,17 @@
               <input
                 id="password"
                 v-model="password"
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 placeholder="Votre mot de passe"
                 class="form-input"
                 @focus="isPasswordFocused = true"
                 @blur="isPasswordFocused = false; validatePassword()"
                 required
               />
+              <button type="button" class="password-toggle" @click="togglePasswordVisibility">
+                <EyeOffIcon v-if="showPassword" class="input-icon" />
+                <EyeIcon v-else class="input-icon" />
+              </button>
             </div>
             <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
           </div>
@@ -102,7 +106,7 @@
 
         <!-- Connexion sociale -->
         <div class="social-login">
-          <button class="social-button google">
+          <button class="social-button google" type="button">
             <div class="social-icon google-icon">G</div>
             <span>Continuer avec Google</span>
           </button>
@@ -129,8 +133,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useAuth } from '@/services/api'
 
-// Icônes SVG
+// Icônes SVG (inchangées)
 const MailIcon = {
   template: `
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -181,6 +186,9 @@ const AlertCircleIcon = {
   `
 }
 
+// Branché sur ton vrai service API
+const { isLoading, error: apiError, login } = useAuth()
+
 // État réactif
 const email = ref('')
 const password = ref('')
@@ -188,12 +196,11 @@ const rememberMe = ref(false)
 const showPassword = ref(false)
 const isEmailFocused = ref(false)
 const isPasswordFocused = ref(false)
-const isLoading = ref(false)
 const emailError = ref('')
 const passwordError = ref('')
 const loginError = ref('')
 
-// Fonctions
+// Validation (inchangée)
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!email.value) {
@@ -208,8 +215,8 @@ const validateEmail = () => {
 const validatePassword = () => {
   if (!password.value) {
     passwordError.value = 'Mot de passe requis'
-  } else if (password.value.length < 6) {
-    passwordError.value = 'Minimum 6 caractères'
+  } else if (password.value.length < 5) {
+    passwordError.value = 'Minimum 5 caractères'
   } else {
     passwordError.value = ''
   }
@@ -219,32 +226,20 @@ const togglePasswordVisibility = () => {
   showPassword.value = !showPassword.value
 }
 
+// Branché sur l'API réelle au lieu du setTimeout de simulation
 const handleLogin = async () => {
-  // Validation
   validateEmail()
   validatePassword()
-  
+
   if (emailError.value || passwordError.value) {
     return
   }
 
-  isLoading.value = true
   loginError.value = ''
+  const result = await login(email.value, password.value, rememberMe.value)
 
-  try {
-    // Simulation d'une requête de connexion
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Ici vous ajouterez votre logique de connexion
-    console.log('Connexion:', { email: email.value, password: password.value, rememberMe: rememberMe.value })
-    
-    // Redirection après connexion réussie
-    // this.$router.push('/')
-    
-  } catch (error) {
-    loginError.value = 'Email ou mot de passe incorrect'
-  } finally {
-    isLoading.value = false
+  if (!result.success) {
+    loginError.value = apiError.value || 'Email ou mot de passe incorrect'
   }
 }
 </script>
@@ -355,10 +350,6 @@ const handleLogin = async () => {
   @apply p-2 text-gray-400 hover:text-white transition-colors;
 }
 
-.toggle-text {
-  @apply text-lg select-none;
-}
-
 .error-message {
   @apply text-red-400 text-sm;
 }
@@ -457,10 +448,6 @@ const handleLogin = async () => {
   @apply bg-white text-gray-800;
 }
 
-.facebook-icon {
-  @apply bg-blue-600 text-white;
-}
-
 /* Lien inscription */
 .signup-link {
   @apply text-center mt-6 pt-6 border-t border-gray-700;
@@ -528,7 +515,7 @@ const handleLogin = async () => {
   .connexion-container {
     @apply px-4;
   }
-  
+
   .connexion-form-container {
     @apply p-6;
   }
