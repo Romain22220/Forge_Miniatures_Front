@@ -1,3 +1,12 @@
+<script setup lang="ts">
+// Pas de logique particulière pour l'instant.
+// Les liens de cartes pointent vers /boutique avec un filtre en query param,
+// à adapter selon la route réelle de ta boutique.
+import ProductCarousel from '@/components/ProductCarousel.vue'
+import TestimonialsSection from '@/components/TestimonialsSection.vue'
+import PassionBanner from '@/components/PassionBanner.vue'
+
+</script>
 <!-- src/views/HomeView.vue -->
 <template>
   <div :class="$style.homeView">
@@ -51,19 +60,20 @@
       </div>
     </section>
   </div>
-</template>
+  <div :class="$style.homeView">
+    <!-- ... hero + collections inchangés ... -->
 
-<script setup lang="ts">
-// Pas de logique particulière pour l'instant.
-// Les liens de cartes pointent vers /boutique avec un filtre en query param,
-// à adapter selon la route réelle de ta boutique.
-</script>
+    <ProductCarousel />
+    <TestimonialsSection />
+    <PassionBanner />
+  </div>
+</template>
 
 <style module>
 .homeView {
   width: 100%;
-  background-color: #000;
-  color: #fff;
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: Roboto;
 }
 
@@ -105,7 +115,7 @@
 .heroSubtitle {
   font-size: 16px;
   line-height: 150%;
-  color: #e5e5e5;
+  color: var(--color-text-light);
   margin: 0;
 }
 
@@ -119,7 +129,7 @@
   font-size: 14px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #d9a65b;
+  color: var(--color-accent);
   margin: 0 0 8px;
 }
 
@@ -133,7 +143,7 @@
 .collectionsSubtitle {
   font-size: 16px;
   line-height: 150%;
-  color: #ccc;
+  color: var(--color-text-muted);
   margin: 0 0 40px;
 }
 
@@ -146,11 +156,11 @@
 
 .collectionCard {
   width: 280px;
-  border: 1px solid #2e2e2e;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 32px;
   text-align: left;
-  background-color: #0b0b0b;
+  background-color: var(--color-bg);
   transition: border-color 0.2s;
   background-image: url('../assets/images/Ogier.png');
   background-size: cover;
@@ -173,7 +183,7 @@
 }
 
 .collectionCard:hover {
-  border-color: #d9a65b;
+  border-color: var(--color-accent);
 }
 
 .cardIcon {
@@ -191,7 +201,7 @@
 .cardText {
   font-size: 14px;
   line-height: 150%;
-  color: #ccc;
+  color: var(--color-text-muted);
   margin: 0 0 20px;
 }
 
@@ -199,7 +209,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #d9a65b;
+  color: var(--color-accent);
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
