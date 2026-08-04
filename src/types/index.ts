@@ -1,12 +1,21 @@
 export interface Article {
-  idt_article: number
-  nom_article: string
-  marque_article: string
-  description_article: string
-  prix_article: number
-  quantite_article: number
-  dateCreation: Date
-  datePublication: Date
+  id: number
+  name: string
+  marque: string
+  description: string
+  images: string[] | null
+  price: number
+  quantite: number
+  dateCreation: string // ISO string tel que renvoyé par Jackson, pas un objet Date natif
+  datePublication: string
+  typeId: number
+  typeName: string
+  statusId: number
+  statutName: string
+  scaleId: number
+  scaleName: string
+  referenceId: number
+  referenceName: string
 }
 
 export interface Scale {

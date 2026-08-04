@@ -1,4 +1,3 @@
-
 <template>
   <div :class="$style.navbar28">
     <div :class="$style.header">
@@ -28,6 +27,10 @@
           </div>
         </div>
         <div :class="$style.actions">
+          <button type="button" :class="$style.themeToggle" @click="toggleTheme" aria-label="Changer de thème">
+            {{ theme === 'dark' ? '☀️' : '🌙' }}
+          </button>
+
           <div v-if="!user" :class="$style.button">
             <router-link to="/connexion" :class="$style.linkText">Connexion</router-link>
           </div>
@@ -97,7 +100,9 @@
 </template>
 <script setup lang="ts">
 import { useAuth } from '@/services/api'
+import { useTheme } from '@/composables/useTheme'
 
+const { theme, toggleTheme } = useTheme()
 const { user, logout } = useAuth()
 
 const handleLogout = async () => {
@@ -108,7 +113,7 @@ const handleLogout = async () => {
 .navbar28 {
   width: 100%;
   position: relative;
-  background-color: #000;
+  background-color: var(--color-bg);
   border-bottom: 1px solid #fff;
   box-sizing: border-box;
   overflow: hidden;
@@ -117,7 +122,7 @@ const handleLogout = async () => {
   align-items: center;
   text-align: left;
   font-size: 16px;
-  color: #fff;
+  color: var(--color-text);
   font-family: Roboto;
 }
 .header {
@@ -205,8 +210,8 @@ const handleLogout = async () => {
 .chevronDownIcon {
   width: 8px;
   height: 8px;
-  border-right: 2px solid #fff;
-  border-bottom: 2px solid #fff;
+  border-right: 2px solid var(--color-text);
+  border-bottom: 2px solid var(--color-text);
   transform: rotate(45deg) translateY(-1px);
   display: inline-block;
 }
@@ -215,8 +220,8 @@ const handleLogout = async () => {
   top: calc(100% + 4px);
   left: 0;
   min-width: 220px;
-  background: #0b0b0b;
-  border: 1px solid #2e2e2e;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 10px;
   padding: 8px;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.45);
@@ -235,24 +240,23 @@ const handleLogout = async () => {
 }
 .categoryDropdownItem {
   line-height: 150%;
-  color: #fff;
+  color: var(--color-text);
   padding: 8px 10px;
   border-radius: 6px;
   white-space: nowrap;
 }
 .categoryDropdownItem:hover {
-  background-color: rgba(217, 166, 91, 0.18);
+  background-color: var(--color-accent-bg-hover-strong);
 }
 .actions {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: #d9a65b;
-}
+  color: var(--color-accent);}
 .button {
   border-radius: 8px;
-  border: 2px solid #d9a65b;
+  border: 2px solid var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -260,8 +264,8 @@ const handleLogout = async () => {
 }
 .button2 {
   border-radius: 8px;
-  background-color: #d9a65b;
-  border: 2px solid #d9a65b;
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -291,7 +295,7 @@ const handleLogout = async () => {
     border-bottom-color 0.25s ease;
 }
 .navbar28:hover .megaMenu1 {
-  border-bottom: 1px solid #fff;
+  border-bottom: 1px solid var(--color-border-strong);
   padding: 32px 64px;
   max-height: 360px;
   opacity: 1;
@@ -455,5 +459,13 @@ const handleLogout = async () => {
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top;
+}
+.themeToggle {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
 }
 </style>
