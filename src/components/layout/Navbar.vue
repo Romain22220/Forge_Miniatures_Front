@@ -6,7 +6,7 @@
           <div :class="$style.companyLogo">
             <!-- Redirect to home-->
             <router-link to="/">
-              <img :class="$style.logoWide1Icon" alt="" />
+              <img :class="$style.logoWide1Icon" src="@/assets/images/logo/logo3.png" alt="Fabrik'Miniatures" />
             </router-link>
           </div>
           <div :class="$style.column">
@@ -71,38 +71,39 @@
       </div>
       <div :class="$style.productList">
         <div :class="$style.cardParent">
-          <!-- Add WRC Image in background via /assets/images/Ogier.png -->
           <div :class="[$style.card, $style.wrcCard]">
             <div :class="$style.contentTop">
               <b :class="$style.heading">Voitures WRC</b>
               <div :class="$style.text">Découvrez nos séries de miniatures collector.</div>
             </div>
             <div :class="$style.navbar28Actions">
-              <div :class="$style.button4">
-                <div :class="$style.linkText">Voir tout</div>
-              </div>
+              <router-link to="/serie/wrc" :class="$style.button4">
+                <span :class="$style.linkText">Voir tout</span>
+              </router-link>
             </div>
           </div>
+
           <div :class="[$style.navbar28Card, $style.motogpCard]">
             <div :class="$style.contentTop">
               <b :class="$style.heading">MotoGP</b>
               <div :class="$style.text">Explorez nos MotoGP.</div>
             </div>
             <div :class="$style.navbar28Actions">
-              <div :class="$style.button4">
-                <div :class="$style.linkText">Voir tout</div>
-              </div>
+              <router-link to="/serie/motogp" :class="$style.button4">
+                <span :class="$style.linkText">Voir tout</span>
+              </router-link>
             </div>
           </div>
+
           <div :class="[$style.card, $style.enduranceCard]">
             <div :class="$style.contentTop">
               <b :class="$style.heading">Endurance</b>
-              <div :class="$style.text">Parcourez nos collections d’endurance.</div>
+              <div :class="$style.text">Parcourez nos collections d'endurance.</div>
             </div>
             <div :class="$style.navbar28Actions">
-              <div :class="$style.button4">
-                <div :class="$style.linkText">Voir tout</div>
-              </div>
+              <router-link to="/serie/wec" :class="$style.button4">
+                <span :class="$style.linkText">Voir tout</span>
+              </router-link>
             </div>
           </div>
         </div>
@@ -163,8 +164,8 @@ const handleLogout = async () => {
   gap: 24px;
 }
 .companyLogo {
-  height: 36px;
-  width: 84px;
+  height: 50px;
+  width: 100px;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -173,8 +174,9 @@ const handleLogout = async () => {
   position: absolute;
   top: calc(50% - 18px);
   left: calc(50% - 35.33px);
-  width: 70px;
-  height: 36px;
+  width: 100px;
+  height: 50px;
+  object-fit: contain; /* évite que le logo soit déformé si le ratio ne correspond pas exactement à 70x36 */
 }
 .column {
   overflow: visible;
@@ -458,9 +460,11 @@ const handleLogout = async () => {
   align-items: center;
   justify-content: center;
   padding: 8px 20px;
+  text-decoration: none;
+  color: inherit;
 }
 .navbar28Card {
-  height: 226px;
+  height: 250px; /* était 226px, aligné sur .card pour un rendu uniforme */
   width: 325.3px;
   overflow: hidden;
   flex-shrink: 0;

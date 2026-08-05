@@ -264,6 +264,10 @@ class ApiService {
   async getArticlesByMarque(marque: string): Promise<Article[]> {
     return this.request<Article[]>(`/articles/marque/${encodeURIComponent(marque)}/all`)
   }
+
+  async getArticlesBySubtype(subtype: string): Promise<Article[]> {
+    return this.request<Article[]>(`/articles/subtype/${encodeURIComponent(subtype)}/all`)
+  }
   // ============================================
   // SCALES
   // ============================================

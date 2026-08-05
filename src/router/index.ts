@@ -7,6 +7,7 @@ import ProfileView from '../views/ProfileView.vue'
 import CollectionView from '../views/CollectionView.vue'
 import CategoryView from '../views/CategoryView.vue'
 import ProductView from '../views/ProductView.vue'
+import SubtypeView from '../views/SubtypeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -52,6 +53,11 @@ const router = createRouter({
       path: '/produit/:id'
       , name: 'product'
       , component: ProductView 
+    },
+    { 
+      path: '/serie/:subtype',
+      name: 'subtype', 
+      component: SubtypeView 
     },
   ],
 })
