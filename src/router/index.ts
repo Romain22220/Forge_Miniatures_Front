@@ -5,6 +5,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import CollectionView from '../views/CollectionView.vue'
+import CategoryView from '../views/CategoryView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -40,6 +41,11 @@ const router = createRouter({
       name: 'collection', 
       component: CollectionView, 
       meta: { requiresAuth: true } 
+    },
+    { 
+      path: '/categorie/:type'
+      , name: 'category'
+      , component: CategoryView 
     },
   ],
 })

@@ -18,11 +18,15 @@
               <div :class="$style.linkText">Catégories</div>
               <span :class="$style.chevronDownIcon" aria-hidden="true"></span>
               <div :class="$style.categoryDropdown">
-                <div :class="$style.categoryDropdownItem">Voitures</div>
-                <div :class="$style.categoryDropdownItem">Motos</div>
-                <div :class="$style.categoryDropdownItem">Engins Agricoles</div>
-                <div :class="$style.categoryDropdownItem">Engins de chantier</div>
-                <div :class="$style.categoryDropdownItem">Bateaux</div>
+                <router-link to="/categorie/voitures" :class="$style.categoryDropdownItem">Voitures</router-link>
+                <router-link to="/categorie/motos" :class="$style.categoryDropdownItem">Motos</router-link>
+                <router-link to="/categorie/engins-agricoles" :class="$style.categoryDropdownItem">
+                  Engins Agricoles
+                </router-link>
+                <router-link to="/categorie/engins-de-chantier" :class="$style.categoryDropdownItem">
+                  Engins de chantier
+                </router-link>
+                <router-link to="/categorie/bateaux" :class="$style.categoryDropdownItem">Bateaux</router-link>
               </div>
             </div>
             <div :class="$style.linkText">Contact</div>
@@ -53,11 +57,15 @@
         <div :class="$style.menuList">
           <div :class="$style.productCategories">Catégories de miniatures</div>
           <div :class="$style.list">
-            <div :class="$style.link">Voitures</div>
-            <div :class="$style.link">Motos</div>
-            <div :class="$style.link">Engins Agricoles</div>
-            <div :class="$style.link">Engins de chantier</div>
-            <div :class="$style.link">Bateaux</div>
+            <router-link to="/categorie/voitures" :class="$style.link">Voitures</router-link>
+            <router-link to="/categorie/motos" :class="$style.link">Motos</router-link>
+            <router-link to="/categorie/engins-agricoles" :class="$style.link">
+              Engins Agricoles
+            </router-link>
+            <router-link to="/categorie/engins-de-chantier" :class="$style.link">
+              Engins de chantier
+            </router-link>
+            <router-link to="/categorie/bateaux" :class="$style.link">Bateaux</router-link>
           </div>
         </div>
       </div>
@@ -244,11 +252,14 @@ const handleLogout = async () => {
 }
 .categoryDropdownItem {
   line-height: 150%;
-  color: var(--color-text);
   padding: 8px 10px;
   border-radius: 6px;
   white-space: nowrap;
+  color: var(--color-text, #fff);
+  text-decoration: none;
+  display: block;
 }
+
 .categoryDropdownItem:hover {
   background-color: var(--color-accent-bg-hover-strong);
 }
@@ -471,5 +482,17 @@ const handleLogout = async () => {
   cursor: pointer;
   line-height: 1;
   padding: 4px;
+}
+
+.link {
+  align-self: stretch;
+  position: relative;
+  line-height: 150%;
+  color: var(--color-text, #fff);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--color-accent, #d9a65b);
 }
 </style>

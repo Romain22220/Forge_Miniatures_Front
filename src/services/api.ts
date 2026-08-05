@@ -257,6 +257,13 @@ class ApiService {
     return this.request<void>(`/articles/${id}`, { method: 'DELETE' })
   }
 
+  async getArticlesByType(type: string): Promise<Article[]> {
+    return this.request<Article[]>(`/articles/type/${encodeURIComponent(type)}/all`)
+  }
+
+  async getArticlesByMarque(marque: string): Promise<Article[]> {
+    return this.request<Article[]>(`/articles/marque/${encodeURIComponent(marque)}/all`)
+  }
   // ============================================
   // SCALES
   // ============================================
