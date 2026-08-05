@@ -1,340 +1,204 @@
-<!-- src/views/InscriptionViews.vue -->
+<!-- src/views/RegisterView.vue -->
 <template>
-  <div class="inscription-page">
-    <!-- Fond avec pattern subtil -->
-    <div class="background-pattern"></div>
-    
-    <!-- Container principal -->
-    <div class="inscription-container">
-      <!-- Logo/Titre -->
-      <div class="inscription-header">
-        <div class="logo-section">
-          <h1 class="logo-title">
-            <span class="logo-forge">Fabrik'</span>
-            <span class="logo-miniatures">Miniatures</span>
-          </h1>
-          <p class="logo-subtitle">Créez votre compte</p>
-        </div>
+  <div :class="$style.registerPage">
+    <div :class="$style.card">
+      <div :class="$style.header">
+        <h1 :class="$style.logoTitle">
+          <span>Fabrik'</span><span :class="$style.accent">Miniatures</span>
+        </h1>
+        <p :class="$style.subtitle">Créez votre compte collectionneur</p>
       </div>
 
-      <!-- Formulaire d'inscription -->
-      <div class="inscription-form-container">
-        <div class="form-header">
-          <h2 class="form-title">Inscription</h2>
-          <p class="form-subtitle">Rejoignez notre communauté</p>
+      <div v-if="success" :class="$style.globalSuccess">
+        {{ success }}
+      </div>
+
+      <form v-else :class="$style.form" @submit.prevent="handleRegister">
+        <div :class="$style.row">
+          <div :class="$style.inputGroup">
+            <label for="name" :class="$style.label">Prénom</label>
+            <div :class="[$style.inputWrapper, { [$style.inputError]: fieldError('name') }]">
+              <input
+                id="name"
+                v-model="form.name"
+                type="text"
+                placeholder="Jean"
+                :class="$style.input"
+                required
+              />
+            </div>
+            <span v-if="fieldError('name')" :class="$style.errorMessage">{{ fieldError('name') }}</span>
+          </div>
+
+          <div :class="$style.inputGroup">
+            <label for="lastName" :class="$style.label">Nom</label>
+            <div :class="[$style.inputWrapper, { [$style.inputError]: fieldError('lastName') }]">
+              <input
+                id="lastName"
+                v-model="form.lastName"
+                type="text"
+                placeholder="Dupont"
+                :class="$style.input"
+                required
+              />
+            </div>
+            <span v-if="fieldError('lastName')" :class="$style.errorMessage">{{ fieldError('lastName') }}</span>
+          </div>
         </div>
 
-        <form @submit.prevent="handleRegister" class="inscription-form">
-          <!-- Prénom et Nom -->
-          <div class="name-row">
-            <div class="input-group">
-              <label for="firstName" class="input-label">Prénom</label>
-              <div class="input-wrapper" :class="{ 'input-focused': isFirstNameFocused, 'input-error': firstNameError }">
-                <UserIcon class="input-icon" />
-                <input
-                  id="firstName"
-                  v-model="firstName"
-                  type="text"
-                  placeholder="Votre prénom"
-                  class="form-input"
-                  @focus="isFirstNameFocused = true"
-                  @blur="isFirstNameFocused = false; validateFirstName()"
-                  required
-                />
-              </div>
-              <span v-if="firstNameError" class="error-message">{{ firstNameError }}</span>
-            </div>
-
-            <div class="input-group">
-              <label for="lastName" class="input-label">Nom</label>
-              <div class="input-wrapper" :class="{ 'input-focused': isLastNameFocused, 'input-error': lastNameError }">
-                <UserIcon class="input-icon" />
-                <input
-                  id="lastName"
-                  v-model="lastName"
-                  type="text"
-                  placeholder="Votre nom"
-                  class="form-input"
-                  @focus="isLastNameFocused = true"
-                  @blur="isLastNameFocused = false; validateLastName()"
-                  required
-                />
-              </div>
-              <span v-if="lastNameError" class="error-message">{{ lastNameError }}</span>
-            </div>
+        <div :class="$style.inputGroup">
+          <label for="pseudo" :class="$style.label">Pseudo</label>
+          <div :class="[$style.inputWrapper, { [$style.inputError]: fieldError('pseudo') }]">
+            <input
+              id="pseudo"
+              v-model="form.pseudo"
+              type="text"
+              placeholder="jdupont43"
+              :class="$style.input"
+              required
+            />
           </div>
+          <span v-if="fieldError('pseudo')" :class="$style.errorMessage">{{ fieldError('pseudo') }}</span>
+        </div>
 
-          <!-- Email -->
-          <div class="input-group">
-            <label for="email" class="input-label">Email</label>
-            <div class="input-wrapper" :class="{ 'input-focused': isEmailFocused, 'input-error': emailError }">
-              <MailIcon class="input-icon" />
-              <input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="votre@email.com"
-                class="form-input"
-                @focus="isEmailFocused = true"
-                @blur="isEmailFocused = false; validateEmail()"
-                required
-              />
-            </div>
-            <span v-if="emailError" class="error-message">{{ emailError }}</span>
-          </div>
-
-          <!-- Mot de passe -->
-          <div class="input-group">
-            <label for="password" class="input-label">Mot de passe</label>
-            <div class="input-wrapper" :class="{ 'input-focused': isPasswordFocused, 'input-error': passwordError }">
-              <LockIcon class="input-icon" />
-              <input
-                id="password"
-                v-model="password"
-                type="password"
-                placeholder="Minimum 6 caractères"
-                class="form-input"
-                @focus="isPasswordFocused = true"
-                @blur="isPasswordFocused = false; validatePassword()"
-                required
-              />
-            </div>
-            <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
-          </div>
-
-          <!-- Confirmation mot de passe -->
-          <div class="input-group">
-            <label for="confirmPassword" class="input-label">Confirmer le mot de passe</label>
-            <div class="input-wrapper" :class="{ 'input-focused': isConfirmPasswordFocused, 'input-error': confirmPasswordError }">
-              <LockIcon class="input-icon" />
-              <input
-                id="confirmPassword"
-                v-model="confirmPassword"
-                type="password"
-                placeholder="Confirmez votre mot de passe"
-                class="form-input"
-                @focus="isConfirmPasswordFocused = true"
-                @blur="isConfirmPasswordFocused = false; validateConfirmPassword()"
-                required
-              />
-            </div>
-            <span v-if="confirmPasswordError" class="error-message">{{ confirmPasswordError }}</span>
-          </div>
-
-          <!-- Date de naissance (optionnel) -->
-          <div class="input-group">
-            <label for="birthDate" class="input-label">Date de naissance <span class="optional">(optionnel)</span></label>
-            <div class="input-wrapper" :class="{ 'input-focused': isBirthDateFocused }">
-              <CalendarIcon class="input-icon" />
-              <input
-                id="birthDate"
-                v-model="birthDate"
-                type="date"
-                class="form-input"
-                @focus="isBirthDateFocused = true"
-                @blur="isBirthDateFocused = false"
-              />
-            </div>
-          </div>
-
-          <!-- Conditions d'utilisation -->
-          <div class="terms-section">
-            <label class="checkbox-container">
-              <input v-model="acceptTerms" type="checkbox" class="checkbox-input" />
-              <span class="checkbox-custom"></span>
-              <span class="checkbox-label">
-                J'accepte les 
-                <router-link to="/conditions" class="terms-link">conditions d'utilisation</router-link>
-                et la
-                <router-link to="/confidentialite" class="terms-link">politique de confidentialité</router-link>
-              </span>
-            </label>
-            <span v-if="termsError" class="error-message">{{ termsError }}</span>
-          </div>
-
-          <!-- Newsletter (optionnel) -->
-          <div class="newsletter-section">
-            <label class="checkbox-container">
-              <input v-model="acceptNewsletter" type="checkbox" class="checkbox-input" />
-              <span class="checkbox-custom"></span>
-              <span class="checkbox-label">
-                Je souhaite recevoir les actualités et promotions par email
-              </span>
-            </label>
-          </div>
-
-          <!-- Bouton d'inscription -->
-          <button
-            type="submit"
-            :disabled="isLoading || !acceptTerms"
-            class="submit-button"
-            :class="{ 'loading': isLoading, 'disabled': !acceptTerms }"
+        <div :class="$style.inputGroup">
+          <label for="email" :class="$style.label">Email</label>
+          <div
+            :class="[$style.inputWrapper, { [$style.inputFocused]: isEmailFocused, [$style.inputError]: emailError || fieldError('email') }]"
           >
-            <LoaderIcon v-if="isLoading" class="loading-icon" />
-            <span v-else>Créer mon compte</span>
-          </button>
+            <input
+              id="email"
+              v-model="form.email"
+              type="email"
+              placeholder="votre@email.com"
+              :class="$style.input"
+              @focus="isEmailFocused = true"
+              @blur="isEmailFocused = false; validateEmail()"
+              required
+            />
+          </div>
+          <span v-if="emailError || fieldError('email')" :class="$style.errorMessage">
+            {{ emailError || fieldError('email') }}
+          </span>
+        </div>
 
-          <!-- Message d'erreur global -->
-          <div v-if="registerError" class="global-error">
-            <AlertCircleIcon class="error-icon" />
-            <span>{{ registerError }}</span>
+        <div :class="$style.inputGroup">
+          <label for="address" :class="$style.label">Adresse</label>
+          <div :class="[$style.inputWrapper, { [$style.inputError]: fieldError('address') }]">
+            <input
+              id="address"
+              v-model="form.address"
+              type="text"
+              placeholder="12 rue des Miniatures, 75000 Paris"
+              :class="$style.input"
+              required
+            />
+          </div>
+          <span v-if="fieldError('address')" :class="$style.errorMessage">{{ fieldError('address') }}</span>
+        </div>
+
+        <div :class="$style.row">
+          <div :class="$style.inputGroup">
+            <label for="phoneNumber" :class="$style.label">Téléphone <span :class="$style.optional">(optionnel)</span></label>
+            <div :class="$style.inputWrapper">
+              <input
+                id="phoneNumber"
+                v-model="form.phoneNumber"
+                type="tel"
+                placeholder="06 12 34 56 78"
+                :class="$style.input"
+              />
+            </div>
           </div>
 
-          <!-- Message de succès -->
-          <div v-if="registerSuccess" class="global-success">
-            <CheckCircleIcon class="success-icon" />
-            <span>{{ registerSuccess }}</span>
+          <div :class="$style.inputGroup">
+            <label for="birthday" :class="$style.label">Naissance <span :class="$style.optional">(optionnel)</span></label>
+            <div :class="$style.inputWrapper">
+              <input
+                id="birthday"
+                v-model="form.birthday"
+                type="date"
+                :class="$style.input"
+              />
+            </div>
           </div>
-        </form>
-
-        <!-- Séparateur -->
-        <div class="separator">
-          <div class="separator-line"></div>
-          <span class="separator-text">ou</span>
-          <div class="separator-line"></div>
         </div>
 
-        <!-- Connexion sociale -->
-        <div class="social-login">
-          <button class="social-button google">
-            <div class="social-icon google-icon">G</div>
-            <span>S'inscrire avec Google</span>
-          </button>
+        <div :class="$style.inputGroup">
+          <label for="password" :class="$style.label">Mot de passe</label>
+          <div
+            :class="[$style.inputWrapper, { [$style.inputFocused]: isPasswordFocused, [$style.inputError]: passwordError || fieldError('password') }]"
+          >
+            <input
+              id="password"
+              v-model="form.password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="8 caractères minimum"
+              :class="$style.input"
+              @focus="isPasswordFocused = true"
+              @blur="isPasswordFocused = false; validatePassword()"
+              required
+            />
+            <button
+              type="button"
+              :class="$style.togglePassword"
+              @click="showPassword = !showPassword"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+            >
+              {{ showPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <span v-if="passwordError || fieldError('password')" :class="$style.errorMessage">
+            {{ passwordError || fieldError('password') }}
+          </span>
         </div>
 
-        <!-- Lien connexion -->
-        <div class="login-link">
-          <span class="login-text">Déjà un compte ?</span>
-          <router-link to="/connexion" class="login-button">
-            Se connecter
-          </router-link>
+        <button type="submit" :disabled="isLoading" :class="$style.submitButton">
+          {{ isLoading ? 'Création en cours...' : 'Créer mon compte' }}
+        </button>
+
+        <div v-if="error && !hasFieldErrors" :class="$style.globalError">
+          {{ error }}
         </div>
+      </form>
+
+      <div v-if="!success" :class="$style.loginLink">
+        <span>Déjà un compte ?</span>
+        <router-link to="/connexion" :class="$style.loginButton">Se connecter</router-link>
       </div>
-    </div>
-
-    <!-- Décoration -->
-    <div class="decoration-circles">
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref, computed } from 'vue'
+import { useAuth } from '@/services/api'
+import type { UserRegistrationData } from '@/services/api'
 
-// Icônes SVG
-const MailIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-    </svg>
-  `
-}
+const { isLoading, error, success, validationErrors, register } = useAuth()
 
-const LockIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-    </svg>
-  `
-}
+const form = reactive<UserRegistrationData>({
+  name: '',
+  lastName: '',
+  pseudo: '',
+  email: '',
+  address: '',
+  password: '',
+  phoneNumber: '',
+  birthday: null,
+})
 
-const UserIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-    </svg>
-  `
-}
-
-const CalendarIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5" />
-    </svg>
-  `
-}
-
-const LoaderIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="animate-spin">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
-      <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path>
-    </svg>
-  `
-}
-
-const AlertCircleIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-    </svg>
-  `
-}
-
-const CheckCircleIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-    </svg>
-  `
-}
-
-// État réactif
-const firstName = ref('')
-const lastName = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
-const birthDate = ref('')
-const acceptTerms = ref(false)
-const acceptNewsletter = ref(false)
-
-const isFirstNameFocused = ref(false)
-const isLastNameFocused = ref(false)
 const isEmailFocused = ref(false)
 const isPasswordFocused = ref(false)
-const isConfirmPasswordFocused = ref(false)
-const isBirthDateFocused = ref(false)
-const isLoading = ref(false)
-
-const firstNameError = ref('')
-const lastNameError = ref('')
+const showPassword = ref(false)
 const emailError = ref('')
 const passwordError = ref('')
-const confirmPasswordError = ref('')
-const termsError = ref('')
-const registerError = ref('')
-const registerSuccess = ref('')
-
-// Fonctions de validation
-const validateFirstName = () => {
-  if (!firstName.value) {
-    firstNameError.value = 'Prénom requis'
-  } else if (firstName.value.length < 2) {
-    firstNameError.value = 'Minimum 2 caractères'
-  } else {
-    firstNameError.value = ''
-  }
-}
-
-const validateLastName = () => {
-  if (!lastName.value) {
-    lastNameError.value = 'Nom requis'
-  } else if (lastName.value.length < 2) {
-    lastNameError.value = 'Minimum 2 caractères'
-  } else {
-    lastNameError.value = ''
-  }
-}
 
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!email.value) {
+  if (!form.email) {
     emailError.value = 'Email requis'
-  } else if (!emailRegex.test(email.value)) {
+  } else if (!emailRegex.test(form.email)) {
     emailError.value = 'Format email invalide'
   } else {
     emailError.value = ''
@@ -342,374 +206,230 @@ const validateEmail = () => {
 }
 
 const validatePassword = () => {
-  if (!password.value) {
+  if (!form.password) {
     passwordError.value = 'Mot de passe requis'
-  } else if (password.value.length < 6) {
-    passwordError.value = 'Minimum 6 caractères'
+  } else if (form.password.length < 8) {
+    passwordError.value = 'Minimum 8 caractères'
   } else {
     passwordError.value = ''
   }
-  // Re-valider la confirmation si elle existe
-  if (confirmPassword.value) {
-    validateConfirmPassword()
-  }
 }
 
-const validateConfirmPassword = () => {
-  if (!confirmPassword.value) {
-    confirmPasswordError.value = 'Confirmation requise'
-  } else if (password.value !== confirmPassword.value) {
-    confirmPasswordError.value = 'Les mots de passe ne correspondent pas'
-  } else {
-    confirmPasswordError.value = ''
-  }
-}
-
-const validateTerms = () => {
-  if (!acceptTerms.value) {
-    termsError.value = 'Vous devez accepter les conditions'
-  } else {
-    termsError.value = ''
-  }
-}
+// Erreurs de validation renvoyées par le back (champ par champ)
+const fieldError = (field: string) => validationErrors.value?.[field] || ''
+const hasFieldErrors = computed(() => !!validationErrors.value)
 
 const handleRegister = async () => {
-  // Validation complète
-  validateFirstName()
-  validateLastName()
   validateEmail()
   validatePassword()
-  validateConfirmPassword()
-  validateTerms()
-  
-  if (firstNameError.value || lastNameError.value || emailError.value || 
-      passwordError.value || confirmPasswordError.value || termsError.value) {
-    return
-  }
+  if (emailError.value || passwordError.value) return
 
-  isLoading.value = true
-  registerError.value = ''
-  registerSuccess.value = ''
-
-  try {
-    // Simulation d'une requête d'inscription
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // Ici vous ajouterez votre logique d'inscription
-    console.log('Inscription:', {
-      firstName: firstName.value,
-      lastName: lastName.value,
-      email: email.value,
-      password: password.value,
-      birthDate: birthDate.value//,
-      //acceptNewsletter: acceptNewsletter.value
-    })
-    
-    registerSuccess.value = 'Compte créé avec succès ! Vérifiez votre email.'
-    
-    // Redirection après inscription réussie (après 2 secondes)
-    setTimeout(() => {
-      // this.$router.push('/connexion')
-    }, 2000)
-    
-  } catch (error) {
-    registerError.value = 'Une erreur est survenue. Veuillez réessayer.'
-  } finally {
-    isLoading.value = false
-  }
+  await register({ ...form })
 }
 </script>
 
-<style scoped>
-/* Page principale */
-.inscription-page {
-  @apply min-h-screen bg-white relative overflow-hidden;
-  @apply flex items-center justify-center py-12;
-  padding-top: 80px; /* Hauteur de la navbar + marge */
+<style module>
+.registerPage {
+  width: 100%;
+  min-height: calc(100vh - 72px);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: Roboto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  box-sizing: border-box;
 }
 
-/* Pattern de fond subtil */
-.background-pattern {
-  @apply absolute inset-0 opacity-5;
-  background-image: radial-gradient(circle at 1px 1px, #000 1px, transparent 0);
-  background-size: 20px 20px;
+.card {
+  width: 100%;
+  max-width: 520px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-bg-elevated);
+  padding: 40px;
+  box-sizing: border-box;
 }
 
-/* Container principal */
-.inscription-container {
-  @apply relative z-10 w-full max-w-lg mx-auto px-6;
+.header {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
-/* Header avec logo */
-.inscription-header {
-  @apply text-center mb-8;
+.logoTitle {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 130%;
+  margin: 0 0 8px;
 }
 
-.logo-section {
-  @apply mb-6;
+.accent {
+  color: var(--color-accent);
 }
 
-.logo-title {
-  @apply text-4xl font-bold mb-2;
+.subtitle {
+  font-size: 15px;
+  line-height: 150%;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
-.logo-forge {
-  @apply text-gray-800;
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
-.logo-miniatures {
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.row {
+  display: flex;
+  gap: 16px;
 }
 
-.logo-subtitle {
-  @apply text-gray-600 text-lg;
+.row .inputGroup {
+  flex: 1;
+  min-width: 0;
 }
 
-/* Formulaire container */
-.inscription-form-container {
-  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-  @apply rounded-3xl p-8 shadow-2xl border border-gray-800;
-  backdrop-filter: blur(20px);
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.form-header {
-  @apply text-center mb-8;
-}
-
-.form-title {
-  @apply text-2xl font-bold text-white mb-2;
-}
-
-.form-subtitle {
-  @apply text-gray-400;
-}
-
-/* Formulaire */
-.inscription-form {
-  @apply space-y-5;
-}
-
-/* Ligne prénom/nom */
-.name-row {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
-}
-
-.input-group {
-  @apply space-y-2;
-}
-
-.input-label {
-  @apply block text-sm font-medium text-gray-300;
+.label {
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--color-text-muted);
 }
 
 .optional {
-  @apply text-gray-500 font-normal;
+  font-size: 12px;
+  color: var(--color-text-subtle);
 }
 
-.input-wrapper {
-  @apply relative flex items-center bg-gray-800/50 rounded-lg border border-gray-700;
-  @apply transition-all duration-300;
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  transition: border-color 0.2s;
 }
 
-.input-wrapper.input-focused {
-  @apply border-orange-500 ring-2 ring-orange-500/20 bg-gray-800;
+.inputFocused {
+  border-color: var(--color-accent);
 }
 
-.input-wrapper.input-error {
-  @apply border-red-500 ring-2 ring-red-500/20;
+.inputError {
+  border-color: var(--color-error, #e57373);
 }
 
-.input-icon {
-  @apply w-5 h-5 text-gray-400 ml-4 flex-shrink-0;
+.input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-family: Roboto;
+  font-size: 15px;
+  padding: 10px 16px;
+  box-sizing: border-box;
 }
 
-.form-input {
-  @apply flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400;
-  @apply px-4 py-3;
+.input::placeholder {
+  color: var(--color-text-subtle);
 }
 
-.error-message {
-  @apply text-red-400 text-sm;
+.togglePassword {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 12px;
+  line-height: 1;
 }
 
-/* Sections spéciales */
-.terms-section,
-.newsletter-section {
-  @apply space-y-2;
+.errorMessage {
+  font-size: 13px;
+  color: var(--color-error, #e57373);
 }
 
-.checkbox-container {
-  @apply flex items-start space-x-3 cursor-pointer;
+.submitButton {
+  border-radius: 8px;
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  margin-top: 8px;
 }
 
-.checkbox-input {
-  @apply sr-only;
+.submitButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
-.checkbox-custom {
-  @apply w-5 h-5 border-2 border-gray-400 rounded bg-gray-800 transition-all duration-200;
-  @apply flex items-center justify-center flex-shrink-0 mt-0.5;
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.checkbox-input:checked + .checkbox-custom {
-  @apply bg-gradient-to-r from-orange-500 to-red-500 border-orange-500;
+.globalError {
+  border-radius: 8px;
+  border: 1px solid var(--color-error, #e57373);
+  background-color: var(--color-error-bg, rgba(229, 115, 115, 0.1));
+  color: var(--color-error, #e57373);
+  font-size: 13px;
+  padding: 10px 16px;
+  text-align: center;
 }
 
-.checkbox-input:checked + .checkbox-custom::before {
-  content: '✓';
-  @apply text-white text-sm font-bold;
+.globalSuccess {
+  border-radius: 8px;
+  border: 1px solid var(--color-accent);
+  background-color: var(--color-accent-bg-hover);
+  color: var(--color-accent);
+  font-size: 14px;
+  padding: 16px;
+  text-align: center;
 }
 
-.checkbox-label {
-  @apply text-gray-300 text-sm leading-relaxed;
+.loginLink {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
-.terms-link {
-  @apply text-orange-400 hover:text-orange-300 transition-colors underline;
-}
-
-/* Bouton d'inscription */
-.submit-button {
-  @apply w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500;
-  @apply text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600;
-  @apply transition-all duration-300 transform hover:scale-105;
-  @apply flex items-center justify-center space-x-2;
-}
-
-.submit-button:disabled,
-.submit-button.disabled {
-  @apply opacity-50 cursor-not-allowed transform-none;
-}
-
-.loading-icon {
-  @apply w-5 h-5;
-}
-
-/* Messages globaux */
-.global-error {
-  @apply flex items-center space-x-2 bg-red-900/20 text-red-400 p-3 rounded-lg;
-  @apply border border-red-700;
-}
-
-.global-success {
-  @apply flex items-center space-x-2 bg-green-900/20 text-green-400 p-3 rounded-lg;
-  @apply border border-green-700;
-}
-
-.error-icon,
-.success-icon {
-  @apply w-5 h-5 flex-shrink-0;
-}
-
-/* Séparateur */
-.separator {
-  @apply flex items-center my-6;
-}
-
-.separator-line {
-  @apply flex-1 h-px bg-gray-700;
-}
-
-.separator-text {
-  @apply px-4 text-gray-400 text-sm;
-}
-
-/* Connexion sociale */
-.social-login {
-  @apply space-y-3;
-}
-
-.social-button {
-  @apply w-full flex items-center justify-center space-x-3 py-3 px-4;
-  @apply bg-gray-800/50 hover:bg-gray-800 border border-gray-700;
-  @apply text-gray-300 hover:text-white rounded-lg transition-all duration-200;
-}
-
-.social-icon {
-  @apply w-5 h-5 rounded-full flex items-center justify-center text-sm font-bold;
-}
-
-.google-icon {
-  @apply bg-white text-gray-800;
-}
-
-/* Lien connexion */
-.login-link {
-  @apply text-center mt-6 pt-6 border-t border-gray-700;
-}
-
-.login-text {
-  @apply text-gray-400 text-sm;
-}
-
-.login-button {
-  @apply ml-2 text-orange-400 hover:text-orange-300 font-medium transition-colors;
+.loginButton {
+  margin-left: 6px;
+  color: var(--color-accent);
   text-decoration: none;
+  font-weight: 600;
 }
 
-/* Décoration */
-.decoration-circles {
-  @apply absolute inset-0 pointer-events-none overflow-hidden;
+.loginButton:hover {
+  text-decoration: underline;
 }
 
-.circle {
-  @apply absolute rounded-full opacity-10;
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
-}
-
-.circle-1 {
-  @apply w-64 h-64 -top-32 -left-32;
-  animation: float 6s ease-in-out infinite;
-}
-
-.circle-2 {
-  @apply w-48 h-48 -bottom-24 -right-24;
-  animation: float 8s ease-in-out infinite reverse;
-}
-
-.circle-3 {
-  @apply w-32 h-32 top-1/3 -left-16;
-  animation: float 4s ease-in-out infinite;
-}
-
-/* Animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(10deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive */
 @media (max-width: 640px) {
-  .inscription-container {
-    @apply px-4;
+  .registerPage {
+    padding: 32px 24px;
   }
-  
-  .inscription-form-container {
-    @apply p-6;
+
+  .card {
+    padding: 28px;
   }
-  
-  .name-row {
-    @apply grid-cols-1;
+
+  .row {
+    flex-direction: column;
+    gap: 18px;
   }
 }
 </style>

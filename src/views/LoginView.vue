@@ -1,132 +1,84 @@
 <!-- src/views/LoginView.vue -->
 <template>
-  <div class="connexion-page">
-    <!-- Fond avec pattern subtil -->
-    <div class="background-pattern"></div>
-
-    <!-- Container principal -->
-    <div class="connexion-container">
-      <!-- Logo/Titre -->
-      <div class="connexion-header">
-        <div class="logo-section">
-          <h1 class="logo-title">
-            <span class="logo-forge">Fabrik'</span>
-            <span class="logo-miniatures">Miniatures</span>
-          </h1>
-          <p class="logo-subtitle">Connectez-vous à votre espace</p>
-        </div>
+  <div :class="$style.loginPage">
+    <div :class="$style.card">
+      <div :class="$style.header">
+        <h1 :class="$style.logoTitle">
+          <span>Fabrik'</span><span :class="$style.accent">Miniatures</span>
+        </h1>
+        <p :class="$style.subtitle">Connectez-vous à votre espace</p>
       </div>
 
-      <!-- Formulaire de connexion -->
-      <div class="connexion-form-container">
-        <div class="form-header">
-          <h2 class="form-title">Connexion</h2>
-          <p class="form-subtitle">Accédez à votre compte</p>
-        </div>
-
-        <form @submit.prevent="handleLogin" class="connexion-form">
-          <!-- Email -->
-          <div class="input-group">
-            <label for="email" class="input-label">Email</label>
-            <div class="input-wrapper" :class="{ 'input-focused': isEmailFocused, 'input-error': emailError }">
-              <MailIcon class="input-icon" />
-              <input
-                id="email"
-                v-model="email"
-                type="email"
-                placeholder="votre@email.com"
-                class="form-input"
-                @focus="isEmailFocused = true"
-                @blur="isEmailFocused = false; validateEmail()"
-                required
-              />
-            </div>
-            <span v-if="emailError" class="error-message">{{ emailError }}</span>
-          </div>
-
-          <!-- Mot de passe -->
-          <div class="input-group">
-            <label for="password" class="input-label">Mot de passe</label>
-            <div class="input-wrapper" :class="{ 'input-focused': isPasswordFocused, 'input-error': passwordError }">
-              <LockIcon class="input-icon" />
-              <input
-                id="password"
-                v-model="password"
-                :type="showPassword ? 'text' : 'password'"
-                placeholder="Votre mot de passe"
-                class="form-input"
-                @focus="isPasswordFocused = true"
-                @blur="isPasswordFocused = false; validatePassword()"
-                required
-              />
-              <button type="button" class="password-toggle" @click="togglePasswordVisibility">
-                <EyeOffIcon v-if="showPassword" class="input-icon" />
-                <EyeIcon v-else class="input-icon" />
-              </button>
-            </div>
-            <span v-if="passwordError" class="error-message">{{ passwordError }}</span>
-          </div>
-
-          <!-- Options -->
-          <div class="form-options">
-            <label class="checkbox-container">
-              <input v-model="rememberMe" type="checkbox" class="checkbox-input" />
-              <span class="checkbox-custom"></span>
-              <span class="checkbox-label">Se souvenir de moi</span>
-            </label>
-            <router-link to="/mot-de-passe-oublie" class="forgot-password">
-              Mot de passe oublié ?
-            </router-link>
-          </div>
-
-          <!-- Bouton de connexion -->
-          <button
-            type="submit"
-            :disabled="isLoading"
-            class="submit-button"
-            :class="{ 'loading': isLoading }"
+      <form :class="$style.form" @submit.prevent="handleLogin">
+        <div :class="$style.inputGroup">
+          <label for="email" :class="$style.label">Email</label>
+          <div
+            :class="[$style.inputWrapper, { [$style.inputFocused]: isEmailFocused, [$style.inputError]: emailError }]"
           >
-            <LoaderIcon v-if="isLoading" class="loading-icon" />
-            <span v-else>Se connecter</span>
-          </button>
-
-          <!-- Message d'erreur global -->
-          <div v-if="loginError" class="global-error">
-            <AlertCircleIcon class="error-icon" />
-            <span>{{ loginError }}</span>
+            <input
+              id="email"
+              v-model="email"
+              type="email"
+              placeholder="votre@email.com"
+              :class="$style.input"
+              @focus="isEmailFocused = true"
+              @blur="isEmailFocused = false; validateEmail()"
+              required
+            />
           </div>
-        </form>
-
-        <!-- Séparateur -->
-        <div class="separator">
-          <div class="separator-line"></div>
-          <span class="separator-text">ou</span>
-          <div class="separator-line"></div>
+          <span v-if="emailError" :class="$style.errorMessage">{{ emailError }}</span>
         </div>
 
-        <!-- Connexion sociale -->
-        <div class="social-login">
-          <button class="social-button google" type="button">
-            <div class="social-icon google-icon">G</div>
-            <span>Continuer avec Google</span>
-          </button>
+        <div :class="$style.inputGroup">
+          <label for="password" :class="$style.label">Mot de passe</label>
+          <div
+            :class="[$style.inputWrapper, { [$style.inputFocused]: isPasswordFocused, [$style.inputError]: passwordError }]"
+          >
+            <input
+              id="password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="Votre mot de passe"
+              :class="$style.input"
+              @focus="isPasswordFocused = true"
+              @blur="isPasswordFocused = false; validatePassword()"
+              required
+            />
+            <button
+              type="button"
+              :class="$style.togglePassword"
+              @click="showPassword = !showPassword"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+            >
+              {{ showPassword ? '🙈' : '👁' }}
+            </button>
+          </div>
+          <span v-if="passwordError" :class="$style.errorMessage">{{ passwordError }}</span>
         </div>
 
-        <!-- Lien inscription -->
-        <div class="signup-link">
-          <span class="signup-text">Pas encore de compte ?</span>
-          <router-link to="/inscription" class="signup-button">
-            S'inscrire
+        <div :class="$style.options">
+          <label :class="$style.checkboxContainer">
+            <input v-model="rememberMe" type="checkbox" />
+            <span :class="$style.checkboxLabel">Se souvenir de moi</span>
+          </label>
+          <router-link to="/mot-de-passe-oublie" :class="$style.link">
+            Mot de passe oublié ?
           </router-link>
         </div>
-      </div>
-    </div>
 
-    <!-- Décoration -->
-    <div class="decoration-circles">
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
+        <button type="submit" :disabled="isLoading" :class="$style.submitButton">
+          {{ isLoading ? 'Connexion en cours...' : 'Se connecter' }}
+        </button>
+
+        <div v-if="loginError" :class="$style.globalError">
+          {{ loginError }}
+        </div>
+      </form>
+
+      <div :class="$style.signupLink">
+        <span>Pas encore de compte ?</span>
+        <router-link to="/inscription" :class="$style.signupButton">S'inscrire</router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -135,61 +87,8 @@
 import { ref } from 'vue'
 import { useAuth } from '@/services/api'
 
-// Icônes SVG (inchangées)
-const MailIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-    </svg>
-  `
-}
-
-const LockIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-    </svg>
-  `
-}
-
-const EyeIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-    </svg>
-  `
-}
-
-const EyeOffIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 1-4.243-4.243m4.242 4.242L9.88 9.88" />
-    </svg>
-  `
-}
-
-const LoaderIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="animate-spin">
-      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" class="opacity-25"></circle>
-      <path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" class="opacity-75"></path>
-    </svg>
-  `
-}
-
-const AlertCircleIcon = {
-  template: `
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-    </svg>
-  `
-}
-
-// Branché sur ton vrai service API
 const { isLoading, error: apiError, login } = useAuth()
 
-// État réactif
 const email = ref('')
 const password = ref('')
 const rememberMe = ref(false)
@@ -200,7 +99,6 @@ const emailError = ref('')
 const passwordError = ref('')
 const loginError = ref('')
 
-// Validation (inchangée)
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!email.value) {
@@ -222,18 +120,10 @@ const validatePassword = () => {
   }
 }
 
-const togglePasswordVisibility = () => {
-  showPassword.value = !showPassword.value
-}
-
-// Branché sur l'API réelle au lieu du setTimeout de simulation
 const handleLogin = async () => {
   validateEmail()
   validatePassword()
-
-  if (emailError.value || passwordError.value) {
-    return
-  }
+  if (emailError.value || passwordError.value) return
 
   loginError.value = ''
   const result = await login(email.value, password.value, rememberMe.value)
@@ -244,280 +134,206 @@ const handleLogin = async () => {
 }
 </script>
 
-<style scoped>
-/* Page principale */
-.connexion-page {
-  @apply min-h-screen bg-white relative overflow-hidden;
-  @apply flex items-center justify-center;
-  padding-top: 64px; /* Hauteur de la navbar */
+<style module>
+.loginPage {
+  width: 100%;
+  min-height: calc(100vh - 72px); /* soustrait la hauteur de la Navbar */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: Roboto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+  box-sizing: border-box;
 }
 
-/* Pattern de fond subtil */
-.background-pattern {
-  @apply absolute inset-0 opacity-5;
-  background-image: radial-gradient(circle at 1px 1px, #000 1px, transparent 0);
-  background-size: 20px 20px;
+.card {
+  width: 100%;
+  max-width: 420px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background-color: var(--color-bg-elevated);
+  padding: 40px;
+  box-sizing: border-box;
 }
 
-/* Container principal */
-.connexion-container {
-  @apply relative z-10 w-full max-w-md mx-auto px-6;
+.header {
+  text-align: center;
+  margin-bottom: 32px;
 }
 
-/* Header avec logo */
-.connexion-header {
-  @apply text-center mb-8;
+.logoTitle {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 130%;
+  margin: 0 0 8px;
 }
 
-.logo-section {
-  @apply mb-6;
+.accent {
+  color: var(--color-accent);
 }
 
-.logo-title {
-  @apply text-4xl font-bold mb-2;
+.subtitle {
+  font-size: 15px;
+  line-height: 150%;
+  color: var(--color-text-muted);
+  margin: 0;
 }
 
-.logo-forge {
-  @apply text-gray-800;
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.logo-miniatures {
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.logo-subtitle {
-  @apply text-gray-600 text-lg;
+.label {
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--color-text-muted);
 }
 
-/* Formulaire container */
-.connexion-form-container {
-  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-  @apply rounded-3xl p-8 shadow-2xl border border-gray-800;
-  backdrop-filter: blur(20px);
-}
-
-.form-header {
-  @apply text-center mb-8;
-}
-
-.form-title {
-  @apply text-2xl font-bold text-white mb-2;
-}
-
-.form-subtitle {
-  @apply text-gray-400;
-}
-
-/* Formulaire */
-.connexion-form {
-  @apply space-y-6;
-}
-
-.input-group {
-  @apply space-y-2;
-}
-
-.input-label {
-  @apply block text-sm font-medium text-gray-300;
-}
-
-.input-wrapper {
-  @apply relative flex items-center bg-gray-800/50 rounded-lg border border-gray-700;
-  @apply transition-all duration-300;
-}
-
-.input-wrapper.input-focused {
-  @apply border-orange-500 ring-2 ring-orange-500/20 bg-gray-800;
-}
-
-.input-wrapper.input-error {
-  @apply border-red-500 ring-2 ring-red-500/20;
-}
-
-.input-icon {
-  @apply w-5 h-5 text-gray-400 ml-4;
-}
-
-.form-input {
-  @apply flex-1 bg-transparent border-none outline-none text-white placeholder-gray-400;
-  @apply px-4 py-3;
-}
-
-.password-toggle {
-  @apply p-2 text-gray-400 hover:text-white transition-colors;
-}
-
-.error-message {
-  @apply text-red-400 text-sm;
-}
-
-/* Options */
-.form-options {
-  @apply flex items-center justify-between;
-}
-
-.checkbox-container {
-  @apply flex items-center space-x-2 cursor-pointer;
-}
-
-.checkbox-input {
-  @apply sr-only;
-}
-
-.checkbox-custom {
-  @apply w-4 h-4 border-2 border-gray-400 rounded bg-gray-700 transition-all duration-200;
+.inputWrapper {
   position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  border: 2px solid var(--color-border);
+  transition: border-color 0.2s;
 }
 
-.checkbox-input:checked + .checkbox-custom {
-  @apply bg-gradient-to-r from-orange-500 to-red-500 border-orange-500;
+.inputFocused {
+  border-color: var(--color-accent);
 }
 
-.checkbox-input:checked + .checkbox-custom::after {
-  content: '✓';
-  @apply absolute inset-0 flex items-center justify-center text-white text-xs font-bold;
+.inputError {
+  border-color: var(--color-error, #e57373);
 }
 
-.checkbox-label {
-  @apply text-gray-300 text-sm;
+.input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--color-text);
+  font-family: Roboto;
+  font-size: 15px;
+  padding: 10px 16px;
+  box-sizing: border-box;
 }
 
-.forgot-password {
-  @apply text-orange-400 hover:text-orange-300 text-sm transition-colors;
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.togglePassword {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 12px;
+  line-height: 1;
+}
+
+.errorMessage {
+  font-size: 13px;
+  color: var(--color-error, #e57373);
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  color: var(--color-text-muted);
+}
+
+.link {
+  color: var(--color-accent);
   text-decoration: none;
 }
 
-/* Bouton de connexion */
-.submit-button {
-  @apply w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-red-500;
-  @apply text-white font-medium rounded-lg hover:from-orange-600 hover:to-red-600;
-  @apply transition-all duration-300 transform hover:scale-105;
-  @apply flex items-center justify-center space-x-2;
+.link:hover {
+  text-decoration: underline;
 }
 
-.submit-button:disabled {
-  @apply opacity-70 cursor-not-allowed transform-none;
+.submitButton {
+  border-radius: 8px;
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-accent);
+  color: #fff;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-.loading-icon {
-  @apply w-5 h-5;
+.submitButton:hover:not(:disabled) {
+  opacity: 0.9;
 }
 
-/* Erreur globale */
-.global-error {
-  @apply flex items-center space-x-2 bg-red-900/20 text-red-400 p-3 rounded-lg;
-  @apply border border-red-700;
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.error-icon {
-  @apply w-5 h-5 flex-shrink-0;
+.globalError {
+  border-radius: 8px;
+  border: 1px solid var(--color-error, #e57373);
+  background-color: var(--color-error-bg, rgba(229, 115, 115, 0.1));
+  color: var(--color-error, #e57373);
+  font-size: 13px;
+  padding: 10px 16px;
+  text-align: center;
 }
 
-/* Séparateur */
-.separator {
-  @apply flex items-center my-6;
+.signupLink {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
-.separator-line {
-  @apply flex-1 h-px bg-gray-700;
-}
-
-.separator-text {
-  @apply px-4 text-gray-400 text-sm;
-}
-
-/* Connexion sociale */
-.social-login {
-  @apply space-y-3;
-}
-
-.social-button {
-  @apply w-full flex items-center justify-center space-x-3 py-3 px-4;
-  @apply bg-gray-800/50 hover:bg-gray-800 border border-gray-700;
-  @apply text-gray-300 hover:text-white rounded-lg transition-all duration-200;
-}
-
-.social-icon {
-  @apply w-5 h-5 rounded-full flex items-center justify-center text-sm font-bold;
-}
-
-.google-icon {
-  @apply bg-white text-gray-800;
-}
-
-/* Lien inscription */
-.signup-link {
-  @apply text-center mt-6 pt-6 border-t border-gray-700;
-}
-
-.signup-text {
-  @apply text-gray-400 text-sm;
-}
-
-.signup-button {
-  @apply ml-2 text-orange-400 hover:text-orange-300 font-medium transition-colors;
+.signupButton {
+  margin-left: 6px;
+  color: var(--color-accent);
   text-decoration: none;
+  font-weight: 600;
 }
 
-/* Décoration */
-.decoration-circles {
-  @apply absolute inset-0 pointer-events-none overflow-hidden;
+.signupButton:hover {
+  text-decoration: underline;
 }
 
-.circle {
-  @apply absolute rounded-full opacity-10;
-  background: linear-gradient(45deg, #ff6b35, #f7931e);
-}
-
-.circle-1 {
-  @apply w-64 h-64 -top-32 -right-32;
-  animation: float 6s ease-in-out infinite;
-}
-
-.circle-2 {
-  @apply w-48 h-48 -bottom-24 -left-24;
-  animation: float 8s ease-in-out infinite reverse;
-}
-
-.circle-3 {
-  @apply w-32 h-32 top-1/2 -right-16;
-  animation: float 4s ease-in-out infinite;
-}
-
-/* Animations */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(10deg);
-  }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsive */
 @media (max-width: 640px) {
-  .connexion-container {
-    @apply px-4;
+  .loginPage {
+    padding: 32px 24px;
   }
 
-  .connexion-form-container {
-    @apply p-6;
+  .card {
+    padding: 28px;
   }
 }
 </style>
