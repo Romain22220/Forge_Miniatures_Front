@@ -6,6 +6,7 @@ import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import CollectionView from '../views/CollectionView.vue'
 import CategoryView from '../views/CategoryView.vue'
+import ProductView from '../views/ProductView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -46,6 +47,11 @@ const router = createRouter({
       path: '/categorie/:type'
       , name: 'category'
       , component: CategoryView 
+    },
+    { 
+      path: '/produit/:id'
+      , name: 'product'
+      , component: ProductView 
     },
   ],
 })

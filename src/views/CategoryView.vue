@@ -20,7 +20,12 @@
       </div>
 
       <div v-else :class="$style.grid">
-        <div v-for="article in articles" :key="article.id" :class="$style.card">
+        <router-link
+            v-for="article in articles"
+            :key="article.id"
+            :to="`/produit/${article.id}`"
+            :class="$style.card"
+            >
           <div :class="$style.imageWrapper">
             <img
               v-if="article.images && article.images.length"
@@ -48,10 +53,10 @@
 
             <div :class="$style.cardFooter">
               <span :class="$style.cardPrice">{{ article.price }}€</span>
-              <button type="button" :class="$style.addButton">Ajouter</button>
+             <button type="button" :class="$style.addButton" @click.stop.prevent="handleAddToCart(article)">Ajouter au panier</button>
             </div>
           </div>
-        </div>
+          </router-link>
       </div>
     </div>
   </div>
@@ -129,6 +134,11 @@ const loadArticles = async () => {
   }
 }
 
+const handleAddToCart = (article: Article) => {
+  // À brancher sur ton futur store panier / endpoint collection
+  console.log('Ajout au panier :', article)
+}
+
 onMounted(loadArticles)
 watch(() => route.params.type, loadArticles)
 </script>
@@ -197,6 +207,8 @@ watch(() => route.params.type, loadArticles)
   border: 1px solid var(--color-border);
   background-color: var(--color-bg-elevated);
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .card:hover {

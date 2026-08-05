@@ -15,10 +15,11 @@
     <template v-else>
       <div :class="$style.track">
         <!-- Remplace uniquement le bloc de la carte dans le template -->
-        <div
-        v-for="article in visibleArticles"
-        :key="article.id"
-        :class="$style.card"
+        <router-link
+          v-for="article in visibleArticles"
+          :key="article.id"
+          :to="`/produit/${article.id}`"
+          :class="$style.card"
         >
         <div :class="$style.imageWrapper">
             <img
@@ -48,12 +49,10 @@
 
             <div :class="$style.cardFooter">
             <span :class="$style.cardPrice">{{ formatPrice(article.price) }}</span>
-            <button type="button" :class="$style.addButton" @click="handleAddToCart(article)">
-                Ajouter
-            </button>
+           <button type="button" :class="$style.addButton" @click.stop.prevent="handleAddToCart(article)">Ajouter au panier</button>
             </div>
         </div>
-        </div>
+        </router-link>
       </div>
 
       <div :class="$style.footer">
@@ -235,6 +234,8 @@ onMounted(async () => {
   overflow: hidden;
   border: 1px solid var(--color-border);
   background-color: var(--color-bg);
+  text-decoration: none;
+  color: inherit;
 }
 
 .imageWrapper {
