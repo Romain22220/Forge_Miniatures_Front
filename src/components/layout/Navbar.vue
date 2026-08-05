@@ -10,6 +10,8 @@
             </router-link>
           </div>
           <div :class="$style.column">
+            <router-link v-if="user" to="/profil" :class="$style.linkText">Profil</router-link>
+
             <div :class="$style.linkText">Boutique</div>
             <div :class="$style.linkText">Nouveautés</div>
             <div :class="$style.navLinkDropdown">
@@ -24,6 +26,8 @@
               </div>
             </div>
             <div :class="$style.linkText">Contact</div>
+
+            <router-link v-if="user" to="/collection" :class="$style.linkText">Collection</router-link>
           </div>
         </div>
         <div :class="$style.actions">
