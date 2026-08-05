@@ -74,3 +74,13 @@ export interface ApiResponse<T> {
   message?: string
   status: 'success' | 'error'
 }
+
+export interface UpdateUserData {
+  lastName?: string
+  name?: string
+  pseudo?: string
+  email?: string
+  address?: string
+  phoneNumber?: string
+  birthday?: string | null
+}

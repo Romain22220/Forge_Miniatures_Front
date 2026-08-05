@@ -1,4 +1,4 @@
-import type { Article, Scale, Reference } from '@/types'
+import type { Article, Scale, Reference, UpdateUserData } from '@/types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
@@ -234,6 +234,13 @@ class ApiService {
     return this.request<User>(`/users?email=${encodeURIComponent(email)}`)
   }
 
+  async updateUser(data: UpdateUserData): Promise<User> {
+    return this.request<User>('/users/me/profile/update', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
   // ============================================
   // ARTICLES
   // ============================================
@@ -354,6 +361,37 @@ export function useAuth() {
     router.push('/connexion')
   }
 
+  const updateProfile = async (data: UpdateUserData) => {
+    isLoading.value = true
+    error.value = ''
+    success.value = ''
+
+    try {
+      await apiService.updateUser(data)
+      // Le back renvoie un UpdateUserDTO (nom/prenom), mais notre `user` partagé
+      // suit le format UserDTO (name/lastName) -> on remappe pour rester cohérent
+      user.value = {
+        ...(user.value as User),
+        name: data.name ?? user.value?.name ?? '',
+        lastName: data.lastName ?? user.value?.lastName ?? '',
+        pseudo: data.pseudo ?? user.value?.pseudo ?? '',
+        email: data.email ?? user.value?.email ?? '',
+        address: data.address ?? user.value?.address ?? '',
+        phoneNumber: data.phoneNumber ?? user.value?.phoneNumber,
+        birthday: data.birthday ?? user.value?.birthday,
+      }
+      localStorage.setItem('auth_user', JSON.stringify(user.value))
+      success.value = 'Profil mis à jour avec succès !'
+      return { success: true }
+    } catch (e) {
+      const err = e as Error
+      error.value = err.message || 'Erreur lors de la mise à jour.'
+      return { success: false, error: error.value }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -363,5 +401,6 @@ export function useAuth() {
     register,
     login,
     logout,
+    updateProfile,
   }
 }
