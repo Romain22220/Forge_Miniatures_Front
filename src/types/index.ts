@@ -84,3 +84,18 @@ export interface UpdateUserData {
   phoneNumber?: string
   birthday?: string | null
 }
+
+export interface CollectionItemDTO {
+  articleId: number
+  quantity: number
+}
+
+export interface CollectionDTO {
+  id: number
+  userId: number
+  name: string
+  collectionType: string
+  articleCount: number
+  totalCollectionPrice: number
+  items: CollectionItemDTO[]
+}

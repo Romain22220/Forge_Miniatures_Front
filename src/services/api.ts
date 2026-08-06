@@ -1,4 +1,4 @@
-import type { Article, Scale, Reference, UpdateUserData } from '@/types'
+import type { Article, Scale, Reference, UpdateUserData, CollectionDTO } from '@/types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
@@ -7,7 +7,7 @@ const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/
 // ============================================
 
 export interface UserRegistrationData {
-  name: string // correspond à "name" dans UserDTO (prénom côté back)
+  name: string 
   lastName: string
   pseudo: string
   email: string
@@ -298,6 +298,14 @@ class ApiService {
   // ⚠️ La spec utilise un query param ?id=, pas un path param /{id}
   async getReferenceById(id: number): Promise<Reference> {
     return this.request<Reference>(`/references/id?id=${id}`)
+  }
+
+    // ============================================
+  // COLLECTIONS
+  // ============================================
+  
+  async getMyCollections(): Promise<CollectionDTO[]> {
+    return this.request<CollectionDTO[]>('/collections/me/all')
   }
 }
 

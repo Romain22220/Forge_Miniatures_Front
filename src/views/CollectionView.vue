@@ -3,42 +3,66 @@
   <div :class="$style.collectionPage">
     <div :class="$style.container">
       <div :class="$style.header">
-        <h1 :class="$style.title">Ma collection</h1>
+        <h1 :class="$style.title">Mes collections</h1>
         <button type="button" :class="$style.createButton">Créer une collection</button>
       </div>
-
       <div v-if="isLoading" :class="$style.stateMessage">Chargement...</div>
+      <div v-else-if="loadError" :class="$style.stateMessage">{{ loadError }}</div>
       <div v-else-if="collections.length === 0" :class="$style.emptyState">
-        <p>Vous n'avez pas encore de collection.</p>
-        <p :class="$style.emptyHint">Créez-en une pour organiser vos miniatures préférées.</p>
+        Aucune collection trouvée.
       </div>
 
       <div v-else :class="$style.grid">
-        <div v-for="collection in collections" :key="collection.id" :class="$style.card">
-          <h3 :class="$style.cardTitle">{{ collection.name }}</h3>
+        <button
+          v-for="collection in collections"
+          :key="collection.id"
+          type="button"
+          :class="$style.card"
+          @click="selectedCollection = collection"
+        >
+          <div :class="$style.cardHeader">
+            <h3 :class="$style.cardTitle">{{ collection.name }}</h3>
+            <span v-if="collection.collectionType" :class="$style.typeBadge">
+              {{ collection.collectionType }}
+            </span>
+          </div>
           <p :class="$style.cardMeta">
             {{ collection.articleCount }} article{{ collection.articleCount > 1 ? 's' : '' }} ·
-            {{ collection.totalCollectionPrice }}€
+            {{ collection.totalCollectionPrice.toFixed(2) }}€
           </p>
-        </div>
+        </button>
       </div>
     </div>
+
+    <CollectionDetailModal
+      v-if="selectedCollection"
+      :collection="selectedCollection"
+      @close="selectedCollection = null"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { CollectionDTO } from '@/types'
+import { apiService } from '@/services/api'
+import CollectionDetailModal from '@/components/CollectionDetailModal.vue'
+
+type CollectionDTO = Awaited<ReturnType<typeof apiService.getMyCollections>>[number]
 
 const collections = ref<CollectionDTO[]>([])
 const isLoading = ref(true)
+const loadError = ref('')
+const selectedCollection = ref<CollectionDTO | null>(null)
 
 onMounted(async () => {
-  // ⚠️ Pas d'endpoint "liste des collections d'un user" dans ta spec actuelle
-  // (seulement GET /api/collections/{userId}/{collectionId}, qui suppose de
-  // connaître déjà l'id de la collection). À ajouter côté back pour lister
-  // toutes les collections d'un utilisateur.
-  isLoading.value = false
+  try {
+    collections.value = await apiService.getMyCollections()
+  } catch (e) {
+    console.error('Erreur chargement collections:', e)
+    loadError.value = 'Impossible de charger vos collections pour le moment.'
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
@@ -113,12 +137,35 @@ onMounted(async () => {
   border-radius: 12px;
   background-color: var(--color-bg-elevated);
   padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .cardTitle {
   font-size: 16px;
   font-weight: 600;
-  margin: 0 0 8px;
+  margin: 0;
+}
+
+.typeBadge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
 .cardMeta {
