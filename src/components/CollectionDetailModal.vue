@@ -5,16 +5,45 @@
       <div :class="$style.modal" role="dialog" aria-modal="true">
         <div :class="$style.header">
           <div>
-            <h2 :class="$style.title">{{ collection.name }}</h2>
+            <h2 :class="$style.title">{{ localCollection.name }}</h2>
             <p :class="$style.subtitle">
-              {{ collection.articleCount ?? 0 }} article{{ (collection.articleCount ?? 0) > 1 ? 's' : '' }} ·
-              {{ (collection.totalCollectionPrice ?? 0).toFixed(2) }}€
+              {{ localCollection.articleCount ?? 0 }} article{{ (localCollection.articleCount ?? 0) > 1 ? 's' : '' }} ·
+              {{ (localCollection.totalCollectionPrice ?? 0).toFixed(2) }}€
             </p>
           </div>
-          <button type="button" :class="$style.closeButton" aria-label="Fermer" @click="$emit('close')">
-            ✕
-          </button>
+          <div :class="$style.headerActions">
+            <button
+              type="button"
+              :class="$style.deleteButton"
+              :disabled="isDeleting"
+              aria-label="Supprimer la collection"
+              @click="showDeleteConfirm = true"
+            >
+              🗑 Supprimer
+            </button>
+            <button type="button" :class="$style.closeButton" aria-label="Fermer" @click="$emit('close')">
+              ✕
+            </button>
+          </div>
         </div>
+
+        <!-- Confirmation avant suppression définitive -->
+        <div v-if="showDeleteConfirm" :class="$style.confirmOverlay" @click.self="showDeleteConfirm = false">
+          <div :class="$style.confirmBox">
+            <p :class="$style.confirmText">
+              Supprimer définitivement la collection « {{ localCollection.name }} » ?
+              Cette action est irréversible.
+            </p>
+            <div :class="$style.confirmActions">
+              <button type="button" :class="$style.cancelButton" @click="showDeleteConfirm = false">
+                Annuler
+              </button>
+              <button type="button" :class="$style.confirmDeleteButton" :disabled="isDeleting" @click="handleDeleteCollection">
+                {{ isDeleting ? 'Suppression...' : 'Supprimer' }}
+              </button>
+            </div>
+          </div>
+</div>
 
         <div :class="$style.body">
           <div v-if="isLoading" :class="$style.stateMessage">Chargement des articles...</div>
@@ -62,7 +91,6 @@ import { apiService } from '@/services/api'
 import type { Article } from '@/types'
 
 const props = defineProps<{ collection: CollectionDTO }>()
-defineEmits<{ close: [] }>()
 
 interface ArticleWithQuantity {
   article: Article
@@ -70,10 +98,13 @@ interface ArticleWithQuantity {
 }
 
 interface CollectionDTO {
+  id: number
   name: string
   articleCount: number
   totalCollectionPrice: number
   items?: CollectionItem[]
+  userId: number
+  collectionType: string
 }
 
 interface CollectionItem {
@@ -114,6 +145,32 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const emit = defineEmits<{ close: []; deleted: [collectionId: number] }>()
+
+const localCollection = ref(props.collection)
+const errorMessage = ref('')
+const showDeleteConfirm = ref(false)
+const isDeleting = ref(false)
+
+const handleDeleteCollection = async () => {
+  isDeleting.value = true
+  errorMessage.value = ''
+  try {
+    await apiService.deleteCollection({
+      ...localCollection.value,
+      items: localCollection.value.items ?? []
+    })
+    emit('deleted', localCollection.value.id)
+    emit('close')
+  } catch (e) {
+    const err = e as Error
+    errorMessage.value = err.message || 'Impossible de supprimer cette collection.'
+    showDeleteConfirm.value = false
+  } finally {
+    isDeleting.value = false
+  }
+}
 </script>
 
 <style module>
@@ -273,5 +330,89 @@ onMounted(async () => {
   color: var(--color-accent);
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.deleteButton {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-error, #e57373);
+  font-family: Roboto;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.deleteButton:hover:not(:disabled) {
+  border-color: var(--color-error, #e57373);
+  background-color: var(--color-error-bg, rgba(229, 115, 115, 0.1));
+}
+
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1200;
+}
+
+.confirmBox {
+  width: 100%;
+  max-width: 360px;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 24px;
+  font-family: Roboto;
+  color: var(--color-text);
+}
+
+.confirmText {
+  font-size: 14px;
+  line-height: 160%;
+  margin: 0 0 20px;
+}
+
+.confirmActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.confirmDeleteButton {
+  border-radius: 8px;
+  border: 2px solid var(--color-error, #e57373);
+  background-color: var(--color-error, #e57373);
+  color: #fff;
+  font-family: Roboto;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  cursor: pointer;
+}
+
+.confirmDeleteButton:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.confirmDeleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

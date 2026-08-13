@@ -40,6 +40,7 @@
       v-if="selectedCollection"
       :collection="selectedCollection"
       @close="selectedCollection = null"
+      @deleted="handleCollectionDeleted"
     />
     <CreateCollectionModal
       v-if="showCreateModal"
@@ -79,6 +80,18 @@ const handleCollectionCreated = (collection: CollectionDTO) => {
   collections.value.push(collection)
   showCreateModal.value = false
 }
+
+/*const handleCollectionUpdated = (updatedCollection: CollectionDTO) => {
+  const index = collections.value.findIndex(c => c.id === updatedCollection.id)
+  if (index !== -1) {
+    collections.value[index] = updatedCollection
+  }
+}*/
+
+const handleCollectionDeleted = (deletedCollectionId: number) => {
+  collections.value = collections.value.filter(c => c.id !== deletedCollectionId)
+}
+
 </script>
 
 <style module>

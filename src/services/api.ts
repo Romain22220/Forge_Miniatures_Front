@@ -312,6 +312,12 @@ class ApiService {
   return this.request<CollectionDTO>('/collections/me/create', {
     method: 'POST',
     body: JSON.stringify(data),
+  })}
+
+  async deleteCollection(collection: CollectionDTO): Promise<void> {
+  return this.request<void>('/collections/me/delete', {
+    method: 'DELETE',
+    body: JSON.stringify(collection),
   })
 }
 }
