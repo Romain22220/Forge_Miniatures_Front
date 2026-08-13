@@ -7,8 +7,8 @@
           <div>
             <h2 :class="$style.title">{{ collection.name }}</h2>
             <p :class="$style.subtitle">
-              {{ collection.articleCount }} article{{ collection.articleCount > 1 ? 's' : '' }} ·
-              {{ collection.totalCollectionPrice.toFixed(2) }}€
+              {{ collection.articleCount ?? 0 }} article{{ (collection.articleCount ?? 0) > 1 ? 's' : '' }} ·
+              {{ (collection.totalCollectionPrice ?? 0).toFixed(2) }}€
             </p>
           </div>
           <button type="button" :class="$style.closeButton" aria-label="Fermer" @click="$emit('close')">

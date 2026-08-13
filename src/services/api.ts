@@ -1,4 +1,4 @@
-import type { Article, Scale, Reference, UpdateUserData, CollectionDTO } from '@/types'
+import type { Article, Scale, Reference, UpdateUserData, CollectionDTO, CreateCollectionData } from '@/types'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '')
 
@@ -307,6 +307,13 @@ class ApiService {
   async getMyCollections(): Promise<CollectionDTO[]> {
     return this.request<CollectionDTO[]>('/collections/me/all')
   }
+
+  async createCollection(data: CreateCollectionData): Promise<CollectionDTO> {
+  return this.request<CollectionDTO>('/collections/me/create', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
 }
 
 export const apiService = new ApiService()

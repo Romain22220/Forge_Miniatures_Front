@@ -4,7 +4,9 @@
     <div :class="$style.container">
       <div :class="$style.header">
         <h1 :class="$style.title">Mes collections</h1>
-        <button type="button" :class="$style.createButton">Créer une collection</button>
+        <button type="button" :class="$style.createButton" @click="showCreateModal = true">
+          Créer une collection
+        </button>
       </div>
       <div v-if="isLoading" :class="$style.stateMessage">Chargement...</div>
       <div v-else-if="loadError" :class="$style.stateMessage">{{ loadError }}</div>
@@ -27,8 +29,8 @@
             </span>
           </div>
           <p :class="$style.cardMeta">
-            {{ collection.articleCount }} article{{ collection.articleCount > 1 ? 's' : '' }} ·
-            {{ collection.totalCollectionPrice.toFixed(2) }}€
+            {{ collection.articleCount ?? 0 }} article{{ (collection.articleCount ?? 0) > 1 ? 's' : '' }} ·
+            {{ (collection.totalCollectionPrice ?? 0).toFixed(2) }}€
           </p>
         </button>
       </div>
@@ -39,6 +41,12 @@
       :collection="selectedCollection"
       @close="selectedCollection = null"
     />
+    <CreateCollectionModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @created="handleCollectionCreated"
+    />
+
   </div>
 </template>
 
@@ -46,6 +54,7 @@
 import { ref, onMounted } from 'vue'
 import { apiService } from '@/services/api'
 import CollectionDetailModal from '@/components/CollectionDetailModal.vue'
+import CreateCollectionModal from '@/components/CreateCollectionModal.vue'
 
 type CollectionDTO = Awaited<ReturnType<typeof apiService.getMyCollections>>[number]
 
@@ -53,6 +62,7 @@ const collections = ref<CollectionDTO[]>([])
 const isLoading = ref(true)
 const loadError = ref('')
 const selectedCollection = ref<CollectionDTO | null>(null)
+const showCreateModal = ref(false)
 
 onMounted(async () => {
   try {
@@ -64,6 +74,11 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const handleCollectionCreated = (collection: CollectionDTO) => {
+  collections.value.push(collection)
+  showCreateModal.value = false
+}
 </script>
 
 <style module>

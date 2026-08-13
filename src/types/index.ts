@@ -99,3 +99,10 @@ export interface CollectionDTO {
   totalCollectionPrice: number
   items: CollectionItemDTO[]
 }
+
+export type CollectionType  = 'OWNED' | 'WISHLIST' | 'RESERVED'
+
+export interface CreateCollectionData {
+  name: string
+  type: CollectionType
+}

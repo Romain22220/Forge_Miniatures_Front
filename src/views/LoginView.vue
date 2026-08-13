@@ -113,8 +113,8 @@ const validateEmail = () => {
 const validatePassword = () => {
   if (!password.value) {
     passwordError.value = 'Mot de passe requis'
-  } else if (password.value.length < 5) {
-    passwordError.value = 'Minimum 5 caractères'
+  } else if (password.value.length < 4) {
+    passwordError.value = 'Minimum 4 caractères'
   } else {
     passwordError.value = ''
   }
