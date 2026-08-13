@@ -10,7 +10,16 @@
             </router-link>
           </div>
           <div :class="$style.column">
-            <router-link v-if="user" to="/profil" :class="$style.linkText">Profil</router-link>
+            <div v-if="user" :class="$style.navLinkDropdown">
+              <span :class="$style.linkText">Profil</span>
+              <span :class="$style.chevronDownIcon" aria-hidden="true"></span>
+              <div :class="$style.categoryDropdown">
+                <router-link to="/profil" :class="$style.categoryDropdownItem">Mon profil</router-link>
+                <router-link v-if="user.admin" to="/dashboard" :class="$style.categoryDropdownItem">
+                  Dashboard
+                </router-link>
+              </div>
+            </div>
 
             <div :class="$style.linkText">Boutique</div>
             <div :class="$style.linkText">Nouveautés</div>
